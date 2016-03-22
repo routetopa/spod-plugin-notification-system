@@ -1,0 +1,8 @@
+{
+  "name": "socket-spod-notification-system",
+  "version": "0.0.1",
+  "description": "SPOD notification system",
+  "dependencies": {
+    "express": "~4.10.2"
+  }
+}
