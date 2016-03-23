@@ -3,12 +3,12 @@
     <name>SPOD Notification System</name>
     <key>spodnotification</key>
     <description>SPOD Notification System</description>
-    <author>ISISLAB</author>
-    <authorEmail>isislab.unisa@gmail.com</authorEmail>
+    <author>ISISLab</author>
+    <authorEmail>isislab@routetopa.eu</authorEmail>
     <authorUrl>http://www.isislab.it/</authorUrl>
-    <developerKey></developerKey>
-    <build>0001</build>
-    <copyright>ISISLAB All rights reserved.</copyright>
-    <license>MIT</license>
+    <developerKey>2b810a795fa9b5b5d138ac0652de1a7e</developerKey>
+    <build>1000</build>
+    <copyright>The ROUTE-TO-PA Project</copyright>
+    <license>The MIT License</license>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
 </plugin>
