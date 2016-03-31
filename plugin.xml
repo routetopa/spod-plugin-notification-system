@@ -4,11 +4,11 @@
     <key>spodnotification</key>
     <description>SPOD Notification System</description>
     <author>ISISLAB</author>
-    <authorEmail>isislab@routetopa.eu</authorEmail>
+    <authorEmail>isislab.unisa@gmail.com</authorEmail>
     <authorUrl>http://www.isislab.it/</authorUrl>
-    <developerKey>2b810a795fa9b5b5d138ac0652de1a7e</developerKey>
-    <build>1111</build>
+    <developerKey></developerKey>
+    <build>0001</build>
     <copyright>ISISLAB All rights reserved.</copyright>
-    <license>The MIT License</license>
+    <license>MIT</license>
     <licenseUrl>https://opensource.org/licenses/MIT</licenseUrl>
 </plugin>
