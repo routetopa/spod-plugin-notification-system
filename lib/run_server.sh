@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-node index.js > /dev/null & echo $! > server_pid.txt
+node index.js > /dev/null 2>&1 &
