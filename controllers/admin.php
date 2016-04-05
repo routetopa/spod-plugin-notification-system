@@ -37,6 +37,16 @@ class SPODNOTIFICATION_CTRL_Admin extends ADMIN_CTRL_Abstract
         {
             $data = $form->getValues();
 
+            $preference = BOL_PreferenceService::getInstance()->findPreference('spodnotification_admin_run_status');
+
+            if(empty($preference))
+                $preference = new BOL_Preference();
+
+            $preference->key = 'spodnotification_admin_run_status';
+            $preference->sortOrder = 1;
+            $preference->sectionName = 'general';
+
+
             if($data['running'])
             {
                 //is running
@@ -46,17 +56,21 @@ class SPODNOTIFICATION_CTRL_Admin extends ADMIN_CTRL_Abstract
 
                 chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
                 shell_exec("sh ./stop_server.sh");
+                $preference->defaultValue = 'STOP';
             }
             else
             {
                 //is not running
                 chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
-                $output = shell_exec("sh ./run_server.sh");
+                shell_exec("sh ./run_server.sh");
+                $preference->defaultValue = 'RUN';
 
                 $submit->setValue('STOP');
                 $this->assign('running', 'running');
                 $field->setValue(1);
             }
+
+            BOL_PreferenceService::getInstance()->savePreference($preference);
         }
     }
 }
