@@ -23,7 +23,7 @@ class SPODNOTIFICATION_CLASS_EventHandler
     // Handle event
     public function init()
     {
-        OW::getEventManager()->bind('base_add_comment', array($this, 'baseAddComment'));
+        //OW::getEventManager()->bind('base_add_comment', array($this, 'baseAddComment'));
     }
 
     public function baseAddComment(OW_Event $event)
