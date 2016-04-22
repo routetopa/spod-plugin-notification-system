@@ -6,7 +6,7 @@ class SPODNOTIFICATION_Cron extends OW_Cron
     {
         parent::__construct();
 
-        $this->addJob('chechServerStatus', 2);
+        $this->addJob('chechServerStatus', 60);
     }
 
     public function run()
@@ -22,8 +22,9 @@ class SPODNOTIFICATION_Cron extends OW_Cron
 
         if (!is_resource($connection) && $spodnotification_admin_run_status == "RUN")
         {
-            chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
-            shell_exec("sh ./run_server.sh");
+            //chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
+            //shell_exec("sh ./run_server.sh");
+            shell_exec("service spod-notification-service start");
         }
     }
 }
