@@ -54,15 +54,17 @@ class SPODNOTIFICATION_CTRL_Admin extends ADMIN_CTRL_Abstract
                 $this->assign('running', 'not running');
                 $field->setValue(0);
 
-                chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
-                shell_exec("sh ./stop_server.sh");
+                //chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
+                //shell_exec("sh ./stop_server.sh");
+                shell_exec("service spod-notification-service stop");
                 $preference->defaultValue = 'STOP';
             }
             else
             {
                 //is not running
-                chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
-                shell_exec("sh ./run_server.sh");
+                //chdir(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . '/lib');
+                //shell_exec("sh ./run_server.sh");
+                shell_exec("service spod-notification-service start");
                 $preference->defaultValue = 'RUN';
 
                 $submit->setValue('STOP');
