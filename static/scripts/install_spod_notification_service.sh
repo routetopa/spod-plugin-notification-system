@@ -57,7 +57,7 @@ settingSudoUser(){
            echo "Host_Alias already created"
         else
            echo "Host_Alias LOCAL=${IP}" >> /etc/sudoers
-    fix
+    fi
     if grep -q "www-data       LOCAL=NOPASSWD:/usr/bin/service etherpad-lite" /etc/sudoers ;
         then
            tput setaf 3
