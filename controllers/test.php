@@ -17,7 +17,7 @@ class SPODNOTIFICATION_CTRL_Test extends OW_ActionController
         $commentsParams->level = 0;
         $commentsParams->nodeId = 0;
 
-        SPODTCHAT_CMP_Comments::$numberOfNestedLevels = 1;
+        SPODTCHAT_CMP_Comments::$NUMBER_OF_NESTED_LEVEL = 1;
 
         $commentCmp = new SPODTCHAT_CMP_Comments($commentsParams);
         $this->addComponent('comments', $commentCmp);

@@ -53,4 +53,16 @@ class SPODNOTIFICATION_CLASS_EventHandler
         {}
 
     }
+
+    public function emitNotification($map){
+        try
+        {
+            $client = new Client(new Version1X('http://localhost:3000'));
+            $client->initialize();
+            $client->emit('realtime_notification', $map);
+            $client->close();
+        }
+        catch(Exception $e)
+        {}
+    }
 }
