@@ -58,7 +58,7 @@ settingSudoUser(){
         else
            echo "Host_Alias LOCAL=${IP}" >> /etc/sudoers
     fi
-    if grep -q "www-data       LOCAL=NOPASSWD:/usr/bin/service etherpad-lite" /etc/sudoers ;
+    if grep -q "www-data       LOCAL=NOPASSWD:/usr/bin/service spod-notification-service" /etc/sudoers ;
         then
            tput setaf 3
            echo "Start/Stop rules already created"
