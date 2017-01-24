@@ -1,8 +1,12 @@
 {form name='settings'}
 <table class="ow_table_1 ow_form ow_automargin">
-    <tr class="ow_alt1">
+    <!--<tr class="ow_alt1">
         <td class="ow_value">Server is </td>
         <td class="ow_value">{$running}</td>
+    </tr>-->
+    <tr class="ow_alt1">
+        <td class="ow_value">NOTIFICATION SERVER PORT (min 1024 max 65535)</td>
+        <td class="ow_value">{input name='notification_port'}</td>
     </tr>
     <tr>
         <td colspan="2" class="ow_center">{submit name='add' class='ow_button ow_ic_save'}</td>
