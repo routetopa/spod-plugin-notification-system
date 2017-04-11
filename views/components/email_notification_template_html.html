@@ -1,0 +1,24 @@
+<div style="font-size:13px;font-family:Lucida Grande,Verdana;">
+    <p>
+        {text key="notifications+email_html_head" userName=$userName}
+    </p>
+    <p>
+        {text key="notifications+email_html_description"}
+    </p>
+    <div style="font-weight: bold">{$time|simple_date:$time:true}</div>
+    <ul>
+        <li style="padding: 3px; list-style-type: none; margin-left: 5px; list-style-position: outside; width: 490px;">
+            <div style="display: inline-block; width: 40px; vertical-align: top;">
+                <a href="{$avatar.url}" style="text-decoration: none;" {if !empty($avatar.title)}title="{$avatar.title}"{/if}>
+                <img width="40" height="40" src="{$avatar.src}">
+                </a>
+            </div>
+            <div style="display: inline-block; word-wrap: break-word; vertical-align: top; width: 400px;">
+                <div>{$string}</div>
+            </div>
+        </li>
+    </ul>
+    <p>
+        {text key="notifications+email_html_bottom"}
+    </p>
+</div>

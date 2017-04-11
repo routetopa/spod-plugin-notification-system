@@ -1,0 +1,113 @@
+{literal}
+<style>
+    .notification_switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+    /* Hide default HTML checkbox */
+    .notification_switch input {
+        display:none;
+    }
+
+    /* The slider */
+    .notification_slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #BDBDBD;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    .notification_slider:before {
+        position: absolute;
+        content: "";
+        height: 26px;
+        width: 26px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+    input:checked + .notification_slider {
+        background-color: #4CAF50;
+    }
+
+    input:focus + .notification_slider {
+        box-shadow: 0 0 1px #4CAF50;
+    }
+
+    input:checked + .notification_slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .notification_slider.round {
+        border-radius: 34px;
+    }
+
+    .notification_slider.round:before {
+        border-radius: 50%;
+    }
+</style>
+{/literal}
+
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        $(".notification_checkbox").live("click", function(e){
+            var params = $(this).attr('id').split(".");
+            $.post(NOTIFICATION.ajax_notification_register_user_for_action,
+                    {
+                        userId    : NOTIFICATION.userId,
+                        plugin    : params[0],
+                        action    : params[1],
+                        type      : "mail",
+                        frequency : "immediately",
+                        status    : $(this)[0].checked
+                    },
+                    function (data, status) {
+                    }
+            );
+        })
+    });
+
+</script>
+
+<div class="ow_wide ow_automargin">
+    <table class="ow_table_1 ow_form">
+
+        {foreach from=$actions  key=pluginKey item=plugin name="plugins"}
+        <tr class="ow_tr_first">
+            <th class="ow_name ow_txtleft" colspan="2">
+                <span class="ow_section_icon {$plugin.icon}">{$plugin.label}</span>
+            </th>
+        </tr>
+        {foreach from=$plugin.actions item=action name="actions"}
+        <tr class="{cycle name="install" values="ow_alt1,ow_alt2"} {if $smarty.foreach.actions.last}ow_tr_last{/if}">
+            <!--<td class="ow_label">{$action.action}</td>-->
+            <td>
+                <label class="notification_switch">
+                    <input type="checkbox" class="notification_checkbox" id="{$pluginKey}.{$action.action}" {if $action.registered} checked {/if}>
+                    <div class="notification_slider round"></div>
+                </label>
+            </td>
+            <td class="ow_value">{$action.description}</td>
+        </tr>
+        {/foreach}
+        {if !$smarty.foreach.plugins.last}
+        <tr class="ow_tr_delimiter"><td></td></tr>
+        {/if}
+        {/foreach}
+    </table>
+</div>
