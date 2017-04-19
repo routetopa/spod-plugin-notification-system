@@ -45,7 +45,6 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $tChatController = new SPODTCHAT_CTRL_Ajax();
             $commentListRendered = $tChatController->getCommentListRendered();
 
-
             $client->emit('chat message', [$commentListRendered]);
             $client->close();
         }
@@ -75,7 +74,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $params['data']
         );
 
-        $this->sendEmailNotificationProcess('immediately');
+        $this->sendEmailNotificationProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY);
     }
 
     /*EMAIL NOTIFICATION STUFF*/
@@ -117,9 +116,43 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         return str_replace($search, $replace, $content);
     }
 
-
-
     public function sendEmailNotificationProcess($frequency)
+    {
+        $mail_ready_to_send = array();
+        $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotifications();
+        foreach($notifications as $notification){
+            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
+            foreach($users as $user){
+                $user = BOL_UserService::getInstance()->findUserById($user);
+                if ( empty($user) ) continue;
+                $data= json_decode($notification->data);
+                $mail = OW::getMailer()->createMail()
+                    ->addRecipientEmail($user->email)
+                    ->setHtmlContent($this->getEmailContentHtml($user->id, $data->message))
+                    ->setTextContent($this->getEmailContentText($data->message))
+                    ->setSubject($data->subject);
+            }
+            $ready = new stdClass();
+            $ready->mail = $mail;
+            $ready->notificationId = $notification->id;
+            array_push($mail_ready_to_send, $ready);
+        }
+
+        foreach($mail_ready_to_send as $mail){
+            try
+            {
+                //OW::getMailer()->send($mail->mail);
+                BOL_MailService::getInstance()->send($mail->mail);
+                SPODNOTIFICATION_BOL_Service::getInstance()->deleteNotificationById(intval($mail->notificationId));
+            }
+            catch ( Exception $e )
+            {
+                //Skip invalid notification
+            }
+        }
+    }
+
+    public function sendEmailNotificationBatchProcess($frequency)
     {
         $mail_ready_to_send = array();
         $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotifications();
