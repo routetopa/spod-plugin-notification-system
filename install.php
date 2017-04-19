@@ -1,5 +1,8 @@
 <?php
 
+$path = OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . 'langs.zip';
+BOL_LanguageService::getInstance()->importPrefixFromZip($path, 'spodnotification');
+
 OW::getPluginManager()->addPluginSettingsRouteName('spodnotification', 'notification-settings');
 
 $sql = 'CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spod_notification_notification` (
@@ -24,9 +27,3 @@ CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spod_notification_registered_use
 ';
 
 OW::getDbo()->query($sql);
-
-/*$authorization = OW::getAuthorization();
-$groupName = 'spodnotification';
-$authorization->addGroup($groupName);
-$authorization->addAction($groupName, 'view', true);
-$authorization->addAction($groupName, 'add_comment');*/

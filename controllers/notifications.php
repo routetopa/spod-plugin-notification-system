@@ -10,11 +10,11 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
             throw new AuthenticateException();
         }
 
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodnotification')->getStaticJsUrl() . 'notification_system.js');
+
         OW::getDocument()->setHeading(OW::getLanguage()->text('spodnotification', 'setup_page_heading'));
         OW::getDocument()->setHeadingIconClass('ow_ic_mail');
         OW::getDocument()->setTitle(OW::getLanguage()->text('spodnotification', 'setup_page_title'));
-
-
 
         $actions = SPODNOTIFICATION_BOL_Service::getInstance()->collectActionList();
 
@@ -22,8 +22,9 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
 
         foreach ( $actions as $action )
         {
-            $checked = SPODNOTIFICATION_BOL_Service::getInstance()->isUserRegisteredForAction(OW::getUser()->getId(), $action['section'], $action['action']);
-            $action['registered'] = $checked;
+            $result = SPODNOTIFICATION_BOL_Service::getInstance()->isUserRegisteredForAction(OW::getUser()->getId(), $action['section'], $action['action']);
+            $action['registered'] = ($result != null) ? true : false;
+            $action['frequency']  = $result->frequency;
             if ( empty($tplActions[$action['section']]) )
             {
                 $tplActions[$action['section']] = array(

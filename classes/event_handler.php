@@ -75,7 +75,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $params['data']
         );
 
-        $this->sendEmailNotificationProcess();
+        $this->sendEmailNotificationProcess('immediately');
     }
 
     /*EMAIL NOTIFICATION STUFF*/
@@ -119,12 +119,12 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
 
 
-    private function sendEmailNotificationProcess()
+    public function sendEmailNotificationProcess($frequency)
     {
         $mail_ready_to_send = array();
         $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotifications();
         foreach($notifications as $notification){
-            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action);
+            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
             foreach($users as $user){
                 $user = BOL_UserService::getInstance()->findUserById($user);
                 if ( empty($user) ) continue;

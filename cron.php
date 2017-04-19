@@ -6,7 +6,8 @@ class SPODNOTIFICATION_Cron extends OW_Cron
     {
         parent::__construct();
 
-        $this->addJob('chechServerStatus', 60);
+        //$this->addJob('chechServerStatus', 60);
+        $this->addJob('sendEveryDayEmailNotification', 60 * 24);//OneDay
     }
 
     public function run()
@@ -14,7 +15,7 @@ class SPODNOTIFICATION_Cron extends OW_Cron
         // TODO: Implement run() method.
     }
 
-    public function chechServerStatus()
+    private function chechServerStatus()
     {
         $connection = @fsockopen('localhost', '3000');
         $preference = BOL_PreferenceService::getInstance()->findPreference('spodnotification_admin_run_status');
@@ -26,5 +27,9 @@ class SPODNOTIFICATION_Cron extends OW_Cron
             //shell_exec("sh ./run_server.sh");
             shell_exec("service spod-notification-service start");
         }
+    }
+
+    private function sendEveryDayEmailNotification(){
+        SPODNOTIFICATION_CLASS_EventHandler::getInstance()->sendEmailNotificationProcess("everyDay");
     }
 }

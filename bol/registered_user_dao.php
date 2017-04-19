@@ -49,4 +49,12 @@ class SPODNOTIFICATION_BOL_RegisteredUserDao extends OW_BaseDao
     {
         return OW_DB_PREFIX . 'spod_notification_registered_user';
     }
+
+    public function updateFrequency($uid, $plugin, $action, $frequency = 1)
+    {
+        $query = 'UPDATE ' . $this->getTableName() . ' SET ' . 'frequency=' . $frequency .
+            ' WHERE userId='  . $uid . ' AND plugin=\'' . $plugin . '\' AND action=\'' . $action . '\'';
+
+        return $this->dbo->query($query);
+    }
 }

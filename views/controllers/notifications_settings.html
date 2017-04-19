@@ -59,37 +59,130 @@
     .notification_slider.round:before {
         border-radius: 50%;
     }
+
+    /*range slider*/
+    .range {
+        position: relative;
+        width: 200px;
+        height: 5px;
+        margin: 10px;
+    }
+
+    .range input {
+        width: 100%;
+        position: absolute;
+        top: 2px;
+        height: 0;
+        -webkit-appearance: none;
+    }
+    .range input::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        margin: -8px 0 0;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+        border: 0 !important;
+    }
+    .range input::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        margin: -8px 0 0;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+        border: 0 !important;
+    }
+    .range input::-ms-thumb {
+        width: 18px;
+        height: 18px;
+        margin: -8px 0 0;
+        border-radius: 50%;
+        background: #4CAF50;
+        cursor: pointer;
+        border: 0 !important;
+    }
+    .range input::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 2px;
+        cursor: pointer;
+        background: #b2b2b2;
+    }
+    .range input::-moz-range-track {
+        width: 100%;
+        height: 2px;
+        cursor: pointer;
+        background: #b2b2b2;
+    }
+    .range input::-ms-track {
+        width: 100%;
+        height: 2px;
+        cursor: pointer;
+        background: #b2b2b2;
+    }
+    .range input:focus {
+        background: none;
+        outline: none;
+    }
+    .range input::-ms-track {
+        width: 100%;
+        cursor: pointer;
+        background: transparent;
+        border-color: transparent;
+        color: transparent;
+    }
+
+    .range-labels {
+        margin: 18px -41px 0;
+        padding: 0;
+        list-style: none;
+    }
+    .range-labels li {
+        position: relative;
+        float: left;
+        width: 90.25px;
+        text-align: center;
+        color: #b2b2b2;
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .range-labels li::before {
+        position: absolute;
+        top: -25px;
+        right: 0;
+        left: 0;
+        content: "";
+        margin: 0 auto;
+        width: 9px;
+        height: 9px;
+        background: #b2b2b2;
+        border-radius: 50%;
+        display: none;
+    }
+    .range-labels .active {
+        color: #4CAF50;
+        font-weight: bolder;
+    }
+    .range-labels .selected::before {
+        background: #4CAF50;
+    }
+    .range-labels .active.selected::before {
+        display: none;
+    }
+
+    .range-container-disabled{
+        opacity: 0.5;
+    }
+
 </style>
 {/literal}
 
-<script type="text/javascript">
-    $(document).ready(function(){
-
-        $(".notification_checkbox").live("click", function(e){
-            var params = $(this).attr('id').split(".");
-            $.post(NOTIFICATION.ajax_notification_register_user_for_action,
-                    {
-                        userId    : NOTIFICATION.userId,
-                        plugin    : params[0],
-                        action    : params[1],
-                        type      : "mail",
-                        frequency : "immediately",
-                        status    : $(this)[0].checked
-                    },
-                    function (data, status) {
-                    }
-            );
-        })
-    });
-
-</script>
-
 <div class="ow_wide ow_automargin">
     <table class="ow_table_1 ow_form">
-
         {foreach from=$actions  key=pluginKey item=plugin name="plugins"}
         <tr class="ow_tr_first">
-            <th class="ow_name ow_txtleft" colspan="2">
+            <th class="ow_name ow_txtleft" colspan="4">
                 <span class="ow_section_icon {$plugin.icon}">{$plugin.label}</span>
             </th>
         </tr>
@@ -102,12 +195,35 @@
                     <div class="notification_slider round"></div>
                 </label>
             </td>
-            <td class="ow_value">{$action.description}</td>
+            <td class="ow_value" {if !$action.registered} class="range-container-disabled" {/if}>{$action.description}</td>
+            <td  {if !$action.registered} class="range-container-disabled" {/if}>
+                <div id="range-{$pluginKey}-{$action.action}" class="range">
+                    <input type="range" id="input-range-{$pluginKey}-{$action.action}" class="input-thumbs" min="1" max="3" steps="1" value="{$action.frequency}" {if !$action.registered} disabled {/if}>
+                </div>
+
+                <ul class="range-labels">
+                    <li>{text key="spodnotification+frequency_immediately"}</li>
+                    <li>{text key="spodnotification+frequency_every_day"}</li>
+                    <li>{text key="spodnotification+frequency_every_month"}</li>
+                </ul>
+
+            </td>
         </tr>
         {/foreach}
         {if !$smarty.foreach.plugins.last}
         <tr class="ow_tr_delimiter"><td></td></tr>
         {/if}
         {/foreach}
+        <tr>
+            <td colspan="3" class="ow_center">
+                <span>
+                   <span class="ow_button">
+                       <span class="">
+                           <input type="submit" value="{text key='spodnotification+save_settings'}" id="spodnotification_save_settings" name="save">
+                       </span>
+                   </span>
+                </span>
+            </td>
+        </tr>
     </table>
 </div>
