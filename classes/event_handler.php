@@ -131,11 +131,12 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
                     ->setHtmlContent($this->getEmailContentHtml($user->id, $data->message))
                     ->setTextContent($this->getEmailContentText($data->message))
                     ->setSubject($data->subject);
+
+                $ready = new stdClass();
+                $ready->mail = $mail;
+                $ready->notificationId = $notification->id;
+                array_push($mail_ready_to_send, $ready);
             }
-            $ready = new stdClass();
-            $ready->mail = $mail;
-            $ready->notificationId = $notification->id;
-            array_push($mail_ready_to_send, $ready);
         }
 
         foreach($mail_ready_to_send as $mail){
