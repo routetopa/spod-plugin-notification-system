@@ -124,7 +124,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
             foreach($users as $user){
                 $user = BOL_UserService::getInstance()->findUserById($user);
-                if ( empty($user) ) continue;
+                if ( empty($user) || $user == OW::getUser()->getId()) continue;
                 $data= json_decode($notification->data);
                 $mail = OW::getMailer()->createMail()
                     ->addRecipientEmail($user->email)
