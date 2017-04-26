@@ -142,7 +142,6 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         foreach($mail_ready_to_send as $mail){
             try
             {
-                //OW::getMailer()->send($mail->mail);
                 BOL_MailService::getInstance()->send($mail->mail);
                 SPODNOTIFICATION_BOL_Service::getInstance()->deleteNotificationById(intval($mail->notificationId));
             }
