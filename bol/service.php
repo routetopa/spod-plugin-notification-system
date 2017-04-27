@@ -104,7 +104,7 @@ class SPODNOTIFICATION_BOL_Service
         $example->andFieldEqual('plugin', $plugin);
         $example->andFieldEqual('action', $action);
         $example->andFieldEqual('frequency', $frequency);
-        $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findObjectByExample($example);
+        $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findListByExample($example);
         return $result;
     }
 

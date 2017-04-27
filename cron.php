@@ -30,12 +30,12 @@ class SPODNOTIFICATION_Cron extends OW_Cron
         }
     }
 
-    private function sendEveryDayEmailNotification(){
-        SPODNOTIFICATION_CLASS_EventHandler::getInstance()->sendEmailNotificationProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY);
+    public function sendEveryDayEmailNotification(){
+        SPODNOTIFICATION_CLASS_EventHandler::getInstance()->sendEmailNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY);
     }
 
-    private function sendEveryMouthEmailNotification(){
-        SPODNOTIFICATION_CLASS_EventHandler::getInstance()->sendEmailNotificationProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYMONTH);
+    public function sendEveryMouthEmailNotification(){
+        SPODNOTIFICATION_CLASS_EventHandler::getInstance()->sendEmailNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYMONTH);
     }
 
 
