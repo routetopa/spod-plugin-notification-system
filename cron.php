@@ -9,6 +9,7 @@ class SPODNOTIFICATION_Cron extends OW_Cron
         //$this->addJob('chechServerStatus', 60);
         $this->addJob('sendEveryDayEmailNotification'  , 60 * 24);//OneDay
         $this->addJob('sendEveryMouthEmailNotification', 60 * 24 * 30);//OneMonth
+        $this->addJob('deleteExpiredNotifications',      60 * 24);
     }
 
     public function run()
@@ -36,6 +37,10 @@ class SPODNOTIFICATION_Cron extends OW_Cron
 
     public function sendEveryMouthEmailNotification(){
         SPODNOTIFICATION_CLASS_EventHandler::getInstance()->sendEmailNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYMONTH);
+    }
+
+    public function deleteExpiredNotifications(){
+        SPODNOTIFICATION_BOL_Service::getInstance()->deleteExpiredNotifications();
     }
 
 

@@ -130,7 +130,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
     {
         $notification_ready_to_send        = array();
         $notification_delayed_messages     = array();
-        $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotifications();
+        $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotificationsByFrequency($frequency);
         foreach($notifications as $notification){
             $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
             //if(!is_array($users)) $users = array($users);
@@ -151,14 +151,14 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
                         $ready = new stdClass();
                         $ready->data = $mail;
                         $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
-                        $ready->notificationIds = array($notification->id);
+                        //$ready->notificationIds = array($notification->id);
                         $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
                         break;
                     default:
                         $ready = new stdClass();
                         $ready->data = $data->message;
                         $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
-                        $ready->notificationId = $notification->id;
+                        //$ready->notificationId = $notification->id;
                         $notification_delayed_messages = $this->fillNotificationStructure($notification_delayed_messages, $user, $ready);
                         break;
                 }
@@ -167,7 +167,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
         foreach (array_keys($notification_delayed_messages) as $userId){
             $notification_content = "";
-            $notificationIds = array();
+            //$notificationIds = array();
             foreach ($notification_delayed_messages[$userId] as $delayed_message) {
                 $notification_content .= $delayed_message->data . "<br><br><br>";
                 array_push($notificationIds, $delayed_message->notificationId);
@@ -182,7 +182,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $ready = new stdClass();
             $ready->data = $mail;
             $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
-            $ready->notificationIds = $notificationIds;
+            //$ready->notificationIds = $notificationIds;
             $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
         }
 
@@ -194,9 +194,6 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
                         BOL_MailService::getInstance()->send($notification_ready_to_send[$userId][0]->data);
                         break;
                 }
-
-                foreach ($notification_ready_to_send[$userId][0]->notificationIds as $notificationId)
-                    SPODNOTIFICATION_BOL_Service::getInstance()->deleteNotificationById(intval($notificationId));
             }
             catch ( Exception $e )
             {

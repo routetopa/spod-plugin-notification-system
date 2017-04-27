@@ -33,11 +33,39 @@ class SPODNOTIFICATION_BOL_Service
         return SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findAll();
     }
 
+    public function getAllNotificationsByFrequency($frequnecy)
+    {
+        $result = null;
+        switch($frequnecy){
+            case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
+                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findAll();
+                $result = array($result[count($result) - 1]);
+                break;
+            case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY:
+                $today_timestamp     = strtotime('today midnight');
+                $tomorrow_timestamp  = strtotime('tomorrow midnight');
+
+                $example = new OW_Example();
+                $example->andFieldBetween('timestamp', $today_timestamp, $tomorrow_timestamp);
+                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
+                break;
+            case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYMONTH:
+                $current_month_timestamp = strtotime('first day of this month', time());
+                $next_month_timestamp    = strtotime('first day of next month', time());
+
+                $example = new OW_Example();
+                $example->andFieldBetween('timestamp', $current_month_timestamp, $next_month_timestamp);
+                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
+                break;
+        }
+        return $result;
+    }
+
     public function getNotificationByPlugin($plugin)
     {
         $example = new OW_Example();
         $example->andFieldEqual('plugin', $plugin);
-        $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findObjectByExample($example);
+        $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
         return $result;
     }
 
@@ -46,12 +74,22 @@ class SPODNOTIFICATION_BOL_Service
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->deleteById($id);
     }
 
+    public function deleteExpiredNotifications()
+    {
+        $current_month_timestamp = strtotime('first day of this month', time());
+
+        $example = new OW_Example();
+        $example->andFieldLessThan('timestamp', $current_month_timestamp);
+        SPODNOTIFICATION_BOL_NotificationDao::getInstance()->deleteByExample($example);
+    }
+
     public function addNotification($plugin, $type, $action, $data){
-        $notification         = new SPODNOTIFICATION_BOL_Notification();
-        $notification->plugin = $plugin;
-        $notification->type   = $type;
-        $notification->action = $action;
-        $notification->data   = $data;
+        $notification            = new SPODNOTIFICATION_BOL_Notification();
+        $notification->plugin    = $plugin;
+        $notification->type      = $type;
+        $notification->action    = $action;
+        $notification->data      = $data;
+        $notification->timestamp = time();
 
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->save($notification);
     }
