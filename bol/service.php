@@ -33,10 +33,10 @@ class SPODNOTIFICATION_BOL_Service
         return SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findAll();
     }
 
-    public function getAllNotificationsByFrequency($frequnecy)
+    public function getAllNotificationsByFrequency($frequency)
     {
         $result = null;
-        switch($frequnecy){
+        switch($frequency){
             case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
                 $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findAll();
                 $result = array($result[count($result) - 1]);
