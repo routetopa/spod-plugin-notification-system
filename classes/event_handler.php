@@ -74,7 +74,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $params['data']
         );
 
-        $this->sendEmailNotificationProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY);
+        $this->sendEmailNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY);
     }
 
     /*EMAIL NOTIFICATION STUFF*/
@@ -116,38 +116,89 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         return str_replace($search, $replace, $content);
     }
 
-    public function sendEmailNotificationProcess($frequency)
+
+    public function fillNotificationStructure($structure, $user, $notification){
+
+        if(array_key_exists($user->id, $structure))
+            array_push($structure[$user->id], $notification);
+        else
+            $structure[$user->id] = array($notification);
+        return $structure;
+    }
+
+    public function sendEmailNotificationBatchProcess($frequency)
     {
-        $mail_ready_to_send = array();
-        $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotifications();
+        $notification_ready_to_send        = array();
+        $notification_delayed_messages     = array();
+        $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotificationsByFrequency($frequency);
         foreach($notifications as $notification){
             $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
+            //if(!is_array($users)) $users = array($users);
             foreach($users as $user){
-                $user = BOL_UserService::getInstance()->findUserById($user);
+                $user = BOL_UserService::getInstance()->findUserById($user->userId);
                 if ( empty($user) ) continue;
+
                 $data= json_decode($notification->data);
-                $mail = OW::getMailer()->createMail()
-                    ->addRecipientEmail($user->email)
-                    ->setHtmlContent($this->getEmailContentHtml($user->id, $data->message))
-                    ->setTextContent($this->getEmailContentText($data->message))
-                    ->setSubject($data->subject);
+
+                switch($frequency){
+                    case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
+                        $mail = OW::getMailer()->createMail()
+                            ->addRecipientEmail($user->email)
+                            ->setHtmlContent($this->getEmailContentHtml($user->id, $data->message))
+                            ->setTextContent($this->getEmailContentText($data->message))
+                            ->setSubject($data->subject);
+
+                        $ready = new stdClass();
+                        $ready->data = $mail;
+                        $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
+                        //$ready->notificationIds = array($notification->id);
+                        $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
+                        break;
+                    default:
+                        $ready = new stdClass();
+                        $ready->data = $data->message;
+                        $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
+                        //$ready->notificationId = $notification->id;
+                        $notification_delayed_messages = $this->fillNotificationStructure($notification_delayed_messages, $user, $ready);
+                        break;
+                }
             }
-            $ready = new stdClass();
-            $ready->mail = $mail;
-            $ready->notificationId = $notification->id;
-            array_push($mail_ready_to_send, $ready);
         }
 
-        foreach($mail_ready_to_send as $mail){
+        foreach (array_keys($notification_delayed_messages) as $userId){
+            $notification_content = "";
+            //$notificationIds = array();
+            foreach ($notification_delayed_messages[$userId] as $delayed_message) {
+                $notification_content .= $delayed_message->data . "<br><br><br>";
+                array_push($notificationIds, $delayed_message->notificationId);
+            }
+            $user = BOL_UserService::getInstance()->findUserById($userId);
+            $mail = OW::getMailer()->createMail()
+                ->addRecipientEmail($user->email)
+                ->setHtmlContent($this->getEmailContentHtml($user->id, $notification_content))
+                ->setTextContent($this->getEmailContentText($notification_content))
+                ->setSubject(OW::getLanguage()->text('spodnotification','email_notifications_subject_delayed'));
+
+            $ready = new stdClass();
+            $ready->data = $mail;
+            $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
+            //$ready->notificationIds = $notificationIds;
+            $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
+        }
+
+        foreach(array_keys($notification_ready_to_send) as $userId){
             try
             {
-                //OW::getMailer()->send($mail->mail);
-                BOL_MailService::getInstance()->send($mail->mail);
-                SPODNOTIFICATION_BOL_Service::getInstance()->deleteNotificationById(intval($mail->notificationId));
+                switch($notification_ready_to_send[$userId][0]->type){
+                    case SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL:
+                        BOL_MailService::getInstance()->send($notification_ready_to_send[$userId][0]->data);
+                        break;
+                }
             }
             catch ( Exception $e )
             {
                 //Skip invalid notification
+                error_log($e->getMessage());
             }
         }
     }

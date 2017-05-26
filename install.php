@@ -11,7 +11,7 @@ $sql = 'CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spod_notification_notifi
   `type` text,
   `plugin` text,
   `action` text,
-  `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `timestamp` int(11),
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
