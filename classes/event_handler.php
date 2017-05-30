@@ -56,7 +56,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
     public function emitNotification($map){
         try
         {
-            $client = new Client(new Version1X('http://localhost:3000'));
+            $client = new Client(new Version1X('http://localhost:3000/realtime_notification'));
             $client->initialize();
             $client->emit('realtime_notification', $map);
             $client->close();
