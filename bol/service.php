@@ -163,5 +163,25 @@ class SPODNOTIFICATION_BOL_Service
         return $this->defaultRuleList;
     }
 
+    public function addUserRegistrationId($userId, $registrationId)
+    {
+        if($this->getRegistrationIdForUser($userId) != null){
+           SPODNOTIFICATION_BOL_UserRegistrationIdDao::getInstance()->updateRegistrationId($userId, $registrationId);
+        }else{
+            $r                 = new SPODNOTIFICATION_BOL_UserRegistrationId();
+            $r->userId         = $userId;
+            $r->registrationId = $registrationId;
+            $r->timestamp      = time();
+            SPODNOTIFICATION_BOL_UserRegistrationIdDao::getInstance()->save($r);
+        }
+    }
+
+    public function getRegistrationIdForUser($userId){
+        $example = new OW_Example();
+        $example->andFieldEqual('userId', $userId);
+        $result = SPODNOTIFICATION_BOL_UserRegistrationIdDao::getInstance()->findObjectByExample($example);
+        return $result->registrationId;
+    }
+
 
 }

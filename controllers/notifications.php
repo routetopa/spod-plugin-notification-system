@@ -42,39 +42,11 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
                 NOTIFICATION.ajax_notification_register_user_for_action = {$ajax_notification_register_user_for_action}
             ', array(
                 'userId'                                     => OW::getUser()->getId(),
-                'ajax_notification_register_user_for_action' => OW::getRouter()->urlFor('SPODNOTIFICATION_CTRL_Notifications', 'registerUserForAction'),
+                'ajax_notification_register_user_for_action' => OW::getRouter()->urlFor('SPODNOTIFICATION_CTRL_Ajax', 'registerUserForAction'),
             ));
             OW::getDocument()->addOnloadScript($js);
         }
 
         $this->assign('actions', $tplActions);
-    }
-
-    public function registerUserForAction(){
-
-        $clean = ODE_CLASS_InputFilter::getInstance()->sanitizeInputs($_REQUEST);
-        if ($clean == null){
-            echo json_encode(array("status" => "error", "massage" => 'Insane inputs detected'));
-            exit;
-        }
-
-        if($clean['status'] == "true") {
-            SPODNOTIFICATION_BOL_Service::getInstance()->registerUserForNotification(
-                $clean['userId'],
-                $clean['plugin'],
-                $clean['type'],
-                $clean['action'],
-                $clean['frequency']);
-        }else{
-            SPODNOTIFICATION_BOL_Service::getInstance()->deleteUserForNotification(
-                $clean['userId'],
-                $clean['plugin'],
-                $clean['type'],
-                $clean['action']);
-        }
-
-        echo json_encode(array("status" => "ok", "massage" => 'user registered for action '.$clean['action'] . " related to the plugin " . $clean['plugin'] ));
-        exit;
-
     }
 }

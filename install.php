@@ -24,6 +24,14 @@ CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spod_notification_registered_use
   `frequency` text,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
+
+CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spod_notification_user_registration_id` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `userId` int(11) NOT NULL,
+  `registrationId` text,
+  `timestamp` int(11),
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 ';
 
 OW::getDbo()->query($sql);
