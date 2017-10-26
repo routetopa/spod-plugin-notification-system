@@ -8,7 +8,7 @@ use ElephantIO\Engine\SocketIO\Version1X;
 
 class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 {
-    private static $API_ACCESS_KEY = 'AAAAXpjiVSk:APA91bEuKsj68o8MLkMHIC_wNv1ajzd0W-Nraikxz51TuG5NNImUyNKp2pD39posqmQXUXC-qeOgve6OwVQrgUweGRz32sqcZH70i1volkTp4qJv5EJ21GsQaMAHff3U5wgAn8iGxD6b';
+    private static $API_ACCESS_KEY = '';
     private static $classInstance;
 
     public static function getInstance()
