@@ -8,7 +8,6 @@ use ElephantIO\Engine\SocketIO\Version1X;
 
 class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 {
-    private static $API_ACCESS_KEY = '';
     private static $classInstance;
 
     public static function getInstance()
@@ -117,7 +116,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         return str_replace($search, $replace, $content);
     }
 
-    public function prepareNotification($notification, $user){
+    /*public function prepareNotification($notification, $user){
         $data= json_decode($notification->data);
         $ready = new stdClass();;
         $ready->type = $notification->type;
@@ -137,8 +136,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         }
 
         return $ready;
-    }
-
+    }*/
 
     public function fillNotificationStructure($structure, $user, $notification){
 
@@ -164,14 +162,13 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
                 switch($frequency){
                     case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
-                        $ready = $this->prepareNotification($notification, $user);
+                        $ready = new stdClass();;
+                        $ready->notification = $notification;
                         $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
                         break;
                     default:
                         $ready = new stdClass();
-                        $ready->data = $data->message;
-                        $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
-
+                        $ready->notification = $notification;;
                         $notification_delayed_messages = $this->fillNotificationStructure($notification_delayed_messages, $user, $ready);
                         break;
                 }
@@ -180,31 +177,26 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
         foreach (array_keys($notification_delayed_messages) as $userId){
             $notification_content = "";
-            //$notificationIds = array();
             foreach ($notification_delayed_messages[$userId] as $delayed_message) {
                 $notification_content .= $delayed_message->data . "<br><br><br>";
                 array_push($notificationIds, $delayed_message->notificationId);
             }
             $user = BOL_UserService::getInstance()->findUserById($userId);
-            $mail = OW::getMailer()->createMail()
-                ->addRecipientEmail($user->email)
-                ->setHtmlContent($this->getEmailContentHtml($user->id, $notification_content))
-                ->setTextContent($this->getEmailContentText($notification_content))
-                ->setSubject(OW::getLanguage()->text('spodnotification','email_notifications_subject_delayed'));
 
             $ready = new stdClass();
-            $ready->data = $mail;
-            $ready->type = SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL;
-            //$ready->notificationIds = $notificationIds;
+            $data = json_decode($ready->notification);
+            $data->message  = $notification_content;
+            $data->subject = OW::getLanguage()->text('spodnotification','email_notifications_subject_delayed');
+            $ready->notification->data = json_encode($data);
             $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
         }
 
         foreach(array_keys($notification_ready_to_send) as $userId){
             try
             {
-                switch($notification_ready_to_send[$userId][0]->type){
+                switch($notification_ready_to_send[$userId][0]->notification->type){
                     case SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL:
-                        BOL_MailService::getInstance()->send($notification_ready_to_send[$userId][0]->data);
+                        $this->sendMailNotification($userId, $notification_ready_to_send[$userId][0]->notification);
                         break;
                     case SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE:
                         $this->sendMobileNotification($userId, $notification_ready_to_send[$userId][0]->notification );
@@ -221,6 +213,9 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
     public function sendMobileNotification($userId, $notification)
     {
+        $preference = BOL_PreferenceService::getInstance()->findPreference('firebase_api_key');
+        $api_key = empty($preference) ? "" : $preference->defaultValue;
+
         $notification_body = array(
             'plugin' => $notification->plugin,
             'action' => $notification->action,
@@ -244,7 +239,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
         $headers = array
         (
-            'Authorization: key=' . $this::$API_ACCESS_KEY,
+            'Authorization: key=' . $api_key,
             'Content-Type: application/json'
         );
         #Send Reponse To FireBase Server
@@ -274,8 +269,8 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
                 'apikey'          => $api_key,
                 'subject'         => $notification->subject,
                 'to'              => BOL_UserService::getInstance()->findUserById($userId)->email,
-                'bodyHtml'        => $this->getEmailContentHtml($userId, $notification->data),
-                'bodyText'        => $this->getEmailContentText($notification->data),
+                'bodyHtml'        => $this->getEmailContentHtml($userId, json_decode($notification->data)->message),
+                'bodyText'        => $this->getEmailContentText(json_decode($notification->data)->message),
                 'isTransactional' => false);
 
             $ch = curl_init();

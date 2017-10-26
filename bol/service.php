@@ -38,8 +38,12 @@ class SPODNOTIFICATION_BOL_Service
         $result = null;
         switch($frequency){
             case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
-                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findAll();
-                $result = array($result[count($result) - 1]);
+                $example = new OW_Example();
+                $example->setOrder('timestamp DESC');
+                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
+                /*$result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findAll();
+                $result = array($result[count($result) - 1]);*/
+                $result = array($result[0]);
                 break;
             case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY:
                 $today_timestamp     = strtotime('today midnight');
