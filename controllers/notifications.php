@@ -23,8 +23,9 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
         foreach ( $actions as $action )
         {
             $result = SPODNOTIFICATION_BOL_Service::getInstance()->isUserRegisteredForAction(OW::getUser()->getId(), $action['section'], $action['action']);
+
             $action['registered'] = ($result != null) ? true : false;
-            $action['frequency']  = $result->frequency;
+            $action['frequency']  = ($result != null) ? $result->frequency : '';
             if ( empty($tplActions[$action['section']]) )
             {
                 $tplActions[$action['section']] = array(
