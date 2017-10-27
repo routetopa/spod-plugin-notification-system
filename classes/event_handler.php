@@ -155,10 +155,6 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
     public function sendNotificationBatchProcess($frequency)
     {
-        $array = array(
-            'func' => function($var) { return $var * 2; },
-        );
-
         $notification_ready_to_send        = array();
         $notification_delayed_messages     = array();
         $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotificationsByFrequency($frequency);
@@ -280,7 +276,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $post = array('from' => 'webmaster@routetopa.eu',
                 'fromName'        => 'SPOD',
                 'apikey'          => $api_key,
-                'subject'         => $notification->subject,
+                'subject'         => json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->subject,
                 'to'              => BOL_UserService::getInstance()->findUserById($userId)->email,
                 'bodyHtml'        => SPODNOTIFICATION_CLASS_EventHandler::getInstance()->getEmailContentHtml($userId, json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->message['mail_html']),
                 'bodyText'        => SPODNOTIFICATION_CLASS_EventHandler::getInstance()->getEmailContentText(json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->message['mail_text']),
