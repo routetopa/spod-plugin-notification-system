@@ -32,33 +32,6 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         OW::getEventManager()->bind('notification_system.add_notification', array($this, 'addNotification'));
     }
 
-    public function baseAddComment(OW_Event $event)
-    {
-        $params = $event->getParams();
-
-        $entityId = $params['entityId'];
-        $userId = $params['userId'];
-        $commentId = $params['commentId'];
-
-        $comment = BOL_CommentService::getInstance()->findComment($commentId);
-
-        try
-        {
-            $client = new Client(new Version1X('http://localhost:3000'));
-            $client->initialize();
-            //$client->emit('chat message', ['chat message' => 'bar']);
-
-            $tChatController = new SPODTCHAT_CTRL_Ajax();
-            $commentListRendered = $tChatController->getCommentListRendered();
-
-            $client->emit('chat message', [$commentListRendered]);
-            $client->close();
-        }
-        catch(Exception $e)
-        {}
-
-    }
-
     public function emitNotification($map){
         try
         {
@@ -89,23 +62,18 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         $date = getdate();
         $time = mktime(0, 0, 0, $date['mon'], $date['mday'], $date['year']);
 
-        //SET EMAIL TEMPLETE
+        //SET EMAIL TEMPLATE
         $template = OW::getPluginManager()->getPlugin('spodnotification')->getCmpViewDir() . 'email_notification_template_html.html';
         $this->setTemplate($template);
 
-        //USER AVATAR FOR THE NEW MAIL
-        $avatar = BOL_AvatarService::getInstance()->getDataForUserAvatars(array(OW::getUser()->getId()))[OW::getUser()->getId()];
         $this->assign('userName', BOL_UserService::getInstance()->getDisplayName($userId));
         $this->assign('string', $content);
-        $this->assign('avatar', $avatar);
         $this->assign('time', $time);
 
         return parent::render();
     }
 
     private function getEmailContentText($message){
-        $date = getdate();
-        $time = mktime(0, 0, 0, $date['mon'], $date['mday'], $date['year']);
 
         $template = OW::getPluginManager()->getPlugin('spodnotification')->getCmpViewDir() . 'email_notification_template_text.html';
         $this->setTemplate($template);
@@ -163,6 +131,10 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             $notification->data = json_decode($notification->data);
             $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
             foreach($users as $user){
+
+                if($user->userId == $notification->data->owner_id)
+                    continue;
+
                 $user = BOL_UserService::getInstance()->findUserById($user->userId);
                 if ( empty($user) ) continue;
 
@@ -203,14 +175,6 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
                 foreach ($notification_ready_to_send[$userId][0]->notification->type as $type){
                     call_user_func(array($this, $this->sendNotificationFunctions[$type]), $userId, $notification_ready_to_send[$userId][0]->notification);
                 }
-               /* switch($notification_ready_to_send[$userId][0]->notification->type){
-                    case SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL:
-                        $this->sendMailNotification($userId, $notification_ready_to_send[$userId][0]->notification);
-                        break;
-                    case SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE:
-                        $this->sendMobileNotification($userId, $notification_ready_to_send[$userId][0]->notification );
-                        break;
-                }*/
             }
             catch ( Exception $e )
             {
@@ -265,21 +229,23 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         //echo $result;
     }
 
-    private function sendMailNotification($userId, $notification){
+    private function sendMailNotification($userId, $notification)
+    {
         $preference = BOL_PreferenceService::getInstance()->findPreference('elastic_mail_api_key');
         $api_key = empty($preference) ? "" : $preference->defaultValue;
 
         $elastic_url = 'https://api.elasticemail.com/v2/email/send';
+        $decoded_mail_data = json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL});
 
         try
         {
             $post = array('from' => 'webmaster@routetopa.eu',
                 'fromName'        => 'SPOD',
                 'apikey'          => $api_key,
-                'subject'         => json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->subject,
+                'subject'         => $decoded_mail_data->subject,
                 'to'              => BOL_UserService::getInstance()->findUserById($userId)->email,
-                'bodyHtml'        => SPODNOTIFICATION_CLASS_EventHandler::getInstance()->getEmailContentHtml($userId, json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->message['mail_html']),
-                'bodyText'        => SPODNOTIFICATION_CLASS_EventHandler::getInstance()->getEmailContentText(json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->message['mail_text']),
+                'bodyHtml'        => $this->getEmailContentHtml($userId, $decoded_mail_data->message->mail_html),
+                'bodyText'        => $this->getEmailContentText($decoded_mail_data->message->mail_text),
                 'isTransactional' => false);
 
             $ch = curl_init();
@@ -298,6 +264,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         }
         catch ( Exception $e )
         {
+            var_dump($e);
             //Skip invalid notification
         }
 

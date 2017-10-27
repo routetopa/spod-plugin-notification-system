@@ -183,7 +183,7 @@ class SPODNOTIFICATION_BOL_Service
         $example = new OW_Example();
         $example->andFieldEqual('userId', $userId);
         $result = SPODNOTIFICATION_BOL_UserRegistrationIdDao::getInstance()->findObjectByExample($example);
-        return $result->registrationId;
+        return !empty($result) ? $result->registrationId : null;
     }
 
 
