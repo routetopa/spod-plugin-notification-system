@@ -99,7 +99,6 @@ class SPODNOTIFICATION_BOL_Service
     }
 
     public function registerUserForNotification($userId, $plugin, $type, $action, $frequency){
-
         if($this->isUserRegisteredForAction($userId,$plugin,$action) != null){
             SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->updateFrequency($userId,$plugin,$action, $frequency);
             return;

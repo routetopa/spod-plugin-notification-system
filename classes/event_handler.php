@@ -8,6 +8,12 @@ use ElephantIO\Engine\SocketIO\Version1X;
 
 class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 {
+    private $sendNotificationFunctions =
+        array(
+            SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL   => 'sendMailNotification',
+            SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE => 'sendMobileNotification'
+        );
+
     private static $classInstance;
 
     public static function getInstance()
@@ -69,9 +75,9 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         $params = $event->getParams();
         SPODNOTIFICATION_BOL_Service::getInstance()->addNotification(
             $params['plugin'],
-            $params['type'],
+            json_encode($params['type']),
             $params['action'],
-            $params['data']
+            json_encode($params['data'])
         );
 
         $this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY);
@@ -149,16 +155,20 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
     public function sendNotificationBatchProcess($frequency)
     {
+        $array = array(
+            'func' => function($var) { return $var * 2; },
+        );
+
         $notification_ready_to_send        = array();
         $notification_delayed_messages     = array();
         $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotificationsByFrequency($frequency);
         foreach($notifications as $notification){
+            $notification->type = json_decode($notification->type);
+            $notification->data = json_decode($notification->data);
             $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
             foreach($users as $user){
                 $user = BOL_UserService::getInstance()->findUserById($user->userId);
                 if ( empty($user) ) continue;
-
-                $data= json_decode($notification->data);
 
                 switch($frequency){
                     case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
@@ -194,14 +204,17 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         foreach(array_keys($notification_ready_to_send) as $userId){
             try
             {
-                switch($notification_ready_to_send[$userId][0]->notification->type){
+                foreach ($notification_ready_to_send[$userId][0]->notification->type as $type){
+                    call_user_func(array($this, $this->sendNotificationFunctions[$type]), $userId, $notification_ready_to_send[$userId][0]->notification);
+                }
+               /* switch($notification_ready_to_send[$userId][0]->notification->type){
                     case SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL:
                         $this->sendMailNotification($userId, $notification_ready_to_send[$userId][0]->notification);
                         break;
                     case SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE:
                         $this->sendMobileNotification($userId, $notification_ready_to_send[$userId][0]->notification );
                         break;
-                }
+                }*/
             }
             catch ( Exception $e )
             {
@@ -219,7 +232,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         $notification_body = array(
             'plugin' => $notification->plugin,
             'action' => $notification->action,
-            'data'   => $notification->data
+            'data'   => $notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE}
         );
 
         $notification = array
@@ -269,8 +282,8 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
                 'apikey'          => $api_key,
                 'subject'         => $notification->subject,
                 'to'              => BOL_UserService::getInstance()->findUserById($userId)->email,
-                'bodyHtml'        => $this->getEmailContentHtml($userId, json_decode($notification->data)->message),
-                'bodyText'        => $this->getEmailContentText(json_decode($notification->data)->message),
+                'bodyHtml'        => SPODNOTIFICATION_CLASS_EventHandler::getInstance()->getEmailContentHtml($userId, json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->message['mail_html']),
+                'bodyText'        => SPODNOTIFICATION_CLASS_EventHandler::getInstance()->getEmailContentText(json_decode($notification->data->{SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL})->message['mail_text']),
                 'isTransactional' => false);
 
             $ch = curl_init();
