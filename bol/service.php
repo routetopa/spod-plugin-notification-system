@@ -87,13 +87,15 @@ class SPODNOTIFICATION_BOL_Service
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->deleteByExample($example);
     }
 
-    public function addNotification($plugin, $type, $action, $data){
-        $notification            = new SPODNOTIFICATION_BOL_Notification();
-        $notification->plugin    = $plugin;
-        $notification->type      = $type;
-        $notification->action    = $action;
-        $notification->data      = $data;
-        $notification->timestamp = time();
+    public function addNotification($plugin, $type, $action, $subAction, $targetUserId, $data){
+        $notification               = new SPODNOTIFICATION_BOL_Notification();
+        $notification->plugin       = $plugin;
+        $notification->type         = $type;
+        $notification->action       = $action;
+        $notification->subAction    = $subAction;
+        $notification->targetUserId = $targetUserId;
+        $notification->data         = $data;
+        $notification->timestamp    = time();
 
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->save($notification);
     }
@@ -139,13 +141,30 @@ class SPODNOTIFICATION_BOL_Service
         SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->deleteByExample($ex);
     }
 
-    public function getRegisteredByPluginAndAction($plugin, $action, $frequency)
+    public function getRegisteredUsersForNotification($notification, $frequency)
     {
         $example = new OW_Example();
-        $example->andFieldEqual('plugin', $plugin);
-        $example->andFieldEqual('action', $action);
+        $example->andFieldEqual('plugin', $notification->plugin);
         $example->andFieldEqual('frequency', $frequency);
+
+        if(!empty($notification->targetUserId)) {
+            $example->andFieldEqual('userId', $notification->targetUserId);
+            $example->andFieldEqual('action', $notification->action);
+        }else {
+            $example->andFieldEqual('action', ($notification->subAction == $notification->action) ? $notification->action : $notification->subAction);
+        }
+
         $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findListByExample($example);
+        return $result;
+    }
+
+    public function getRegistredByAction($action, $userId)
+    {
+        $example = new OW_Example();
+        $example->andFieldEqual('action', $action);
+        $example->andFieldEqual('userId', $userId);
+
+        $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findObjectByExample($example);
         return $result;
     }
 

@@ -19,6 +19,14 @@ class SPODNOTIFICATION_BOL_Notification extends OW_Entity
      */
     public $action;
     /**
+     * @var string
+     */
+    public $subAction;
+    /**
+     * @var integer
+     */
+    public $targetUserId;
+    /**
      * @var integer
      */
     public $timestamp;

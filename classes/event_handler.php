@@ -45,11 +45,58 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
     }
 
     public function addNotification(OW_Event $event){
+
+        /*
+         *  PTP notification     : targetUserID != null,
+         *                         action = action
+         * i.e. mention in agora
+         *         $event = new OW_Event('notification_system.add_notification', array(
+                        'type'      => [SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL, SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE],
+                        'plugin'    => "agora",
+                        "action"    => "agora_mention",
+                        "subAction"    => "agora_mention",
+                        "targetUserId" => $mentioned_user_id,
+                        'data' => [SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL => $data, SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE => $data_mobile]
+                    ));
+
+         *
+         *  CONTEXT notification : targetUserID = null,
+         *                         action = subAction
+         *                         check(action)
+         * i.e. new comment in agora #100
+         *     $event = new OW_Event('notification_system.add_notification', array(
+                    'type'      => [SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL, SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE],
+                    'plugin'    => "agora",
+                    "action"    => "agora_add_comment",
+                    "subAction"    => "agora_add_comment_" . $_REQUEST['entityId'],
+                    "targetUserId" => null,
+                    'data' => [SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL => $data, SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE => $data_mobile, 'owner_id' => $user_id]
+                ));
+         *
+         *
+         * GLOBAL notification   : targetUserID = null,
+         *                         action = action
+         *                         check(action)
+         * i.e. create a new agora room
+         *     $event = new OW_Event('notification_system.add_notification', array(
+                    'type'      => [SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL, SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE],
+                    'plugin'    => "agora",
+                    "action"    => "agora_new_room",
+                    "subAction"    => "agora_new_room",
+                    "targetUserId" => null,
+                    'data' => [SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL => $data, SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE => $data_mobile, 'owner_id' => $user_id]
+                ));
+         *
+         */
+
         $params = $event->getParams();
+
         SPODNOTIFICATION_BOL_Service::getInstance()->addNotification(
             $params['plugin'],
             json_encode($params['type']),
             $params['action'],
+            $params['subAction'],
+            $params['targetUserId'],
             json_encode($params['data'])
         );
 
@@ -90,28 +137,6 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         return str_replace($search, $replace, $content);
     }
 
-    /*public function prepareNotification($notification, $user){
-        $data= json_decode($notification->data);
-        $ready = new stdClass();;
-        $ready->type = $notification->type;
-        switch($notification->type){
-            case SPODNOTIFICATION_CLASS_Consts::TYPE_MAIL:
-                $mail = OW::getMailer()->createMail()
-                    ->addRecipientEmail($user->email)
-                    ->setHtmlContent($this->getEmailContentHtml($user->id, $data->message))
-                    ->setTextContent($this->getEmailContentText($data->message))
-                    ->setSubject($data->subject);
-
-                $ready->data = $mail;
-                break;
-            case SPODNOTIFICATION_CLASS_Consts::TYPE_MOBILE:
-                $ready->notification = $notification;
-                break;
-        }
-
-        return $ready;
-    }*/
-
     public function fillNotificationStructure($structure, $user, $notification){
 
         if(array_key_exists($user->id, $structure))
@@ -129,7 +154,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         foreach($notifications as $notification){
             $notification->type = json_decode($notification->type);
             $notification->data = json_decode($notification->data);
-            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredByPluginAndAction($notification->plugin ,$notification->action, $frequency);
+            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredUsersForNotification($notification, $frequency);
             foreach($users as $user){
 
                 if($user->userId == $notification->data->owner_id)
