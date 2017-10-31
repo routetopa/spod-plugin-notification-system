@@ -35,15 +35,13 @@ class SPODNOTIFICATION_BOL_Service
 
     public function getAllNotificationsByFrequency($frequency)
     {
-        $result = null;
+        $results = null;
         switch($frequency){
             case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
                 $example = new OW_Example();
                 $example->setOrder('timestamp DESC');
-                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
-                /*$result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findAll();
-                $result = array($result[count($result) - 1]);*/
-                $result = array($result[0]);
+                $results = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
+                $results = array($results[0]);
                 break;
             case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY:
                 $today_timestamp     = strtotime('today midnight');
@@ -51,7 +49,7 @@ class SPODNOTIFICATION_BOL_Service
 
                 $example = new OW_Example();
                 $example->andFieldBetween('timestamp', $today_timestamp, $tomorrow_timestamp);
-                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
+                $results = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
                 break;
             case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYMONTH:
                 $current_month_timestamp = strtotime('first day of this month', time());
@@ -59,10 +57,16 @@ class SPODNOTIFICATION_BOL_Service
 
                 $example = new OW_Example();
                 $example->andFieldBetween('timestamp', $current_month_timestamp, $next_month_timestamp);
-                $result = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
+                $results = SPODNOTIFICATION_BOL_NotificationDao::getInstance()->findListByExample($example);
                 break;
         }
-        return $result;
+
+        foreach ($results as &$result)
+        {
+            $result->notification = unserialize($result->notification);
+        }
+
+        return $results;
     }
 
     public function getNotificationByPlugin($plugin)
@@ -87,14 +91,9 @@ class SPODNOTIFICATION_BOL_Service
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->deleteByExample($example);
     }
 
-    public function addNotification($plugin, $type, $action, $subAction, $targetUserId, $data){
+    public function addNotification($obj){
         $notification               = new SPODNOTIFICATION_BOL_Notification();
-        $notification->plugin       = $plugin;
-        $notification->type         = $type;
-        $notification->action       = $action;
-        $notification->subAction    = $subAction;
-        $notification->targetUserId = $targetUserId;
-        $notification->data         = $data;
+        $notification->notification = $obj;
         $notification->timestamp    = time();
 
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->save($notification);
@@ -143,19 +142,27 @@ class SPODNOTIFICATION_BOL_Service
 
     public function getRegisteredUsersForNotification($notification, $frequency)
     {
-        $example = new OW_Example();
-        $example->andFieldEqual('plugin', $notification->plugin);
-        $example->andFieldEqual('frequency', $frequency);
+        $r_u_tn = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->getTableName();
+        $b_u_tn = "ow_base_user";
+
+        $sql = "SELECT userId, email, username FROM {$r_u_tn} JOIN {$b_u_tn} ON {$r_u_tn}.userId = {$b_u_tn}.id WHERE";
+
+        $sql .= " plugin = '{$notification->plugin}' ";
+        $sql .= " AND frequency = '{$frequency}' ";
+        $sql .= " AND type = '" . (new ReflectionClass(get_class($notification)))->getStaticPropertyValue("TYPE") . "' ";
 
         if(!empty($notification->targetUserId)) {
-            $example->andFieldEqual('userId', $notification->targetUserId);
-            $example->andFieldEqual('action', $notification->action);
-        }else {
-            $example->andFieldEqual('action', ($notification->subAction == $notification->action) ? $notification->action : $notification->subAction);
+            $sql .= " AND userId = '{$notification->targetUserId}' ";
+            $sql .= " AND action = '{$notification->action}' ";
+        }else{
+            $sql .= " AND action = '" . (($notification->subAction == $notification->action) ? $notification->action : $notification->subAction) . "' ";
+
+            if($notification->subAction != $notification->action)
+                $sql .= " AND userId IN (SELECT userId FROM {$r_u_tn} WHERE action = '{$notification->action}')";
         }
 
-        $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findListByExample($example);
-        return $result;
+        $dbo = OW::getDbo();
+        return $dbo->queryForObjectList($sql,'SPODNOTIFICATION_BOL_RegisteredUserContract');
     }
 
     public function getRegistredByAction($action, $userId)

@@ -7,12 +7,7 @@ OW::getPluginManager()->addPluginSettingsRouteName('spodnotification', 'notifica
 
 $sql = 'CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spod_notification_notification` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `data` text,
-  `type` text,
-  `plugin` text,
-  `action` text,
-  `subAction` text,
-  `targetUserId` int(11),
+  `notification` text,
   `timestamp` int(11),
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
