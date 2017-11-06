@@ -19,9 +19,8 @@ class SPODNOTIFICATION_CLASS_MobileEventNotification extends SPODNOTIFICATION_CL
 
     public function send($targets)
     {
-        return;
-        //$mail = new SPODNOTIFICATION_CLASS_ElasticMailSender($this, $targets);
-        //$mail->send();
+        $firebase = new SPODNOTIFICATION_CLASS_FirebaseSender($this, $targets);
+        $firebase->send();
     }
 
     public function getTitle()

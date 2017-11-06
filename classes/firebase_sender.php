@@ -1,6 +1,6 @@
 <?php
 
-class SPODNOTIFICATION_CLASS_FirebaseSender implements IMobileSender
+class SPODNOTIFICATION_CLASS_FirebaseSender implements SPODNOTIFICATION_CLASS_ISender
 {
     private $notification;
     private $targets;
@@ -24,11 +24,12 @@ class SPODNOTIFICATION_CLASS_FirebaseSender implements IMobileSender
 
         $notification = array
         (
-            'title'	=> $this->notification->title,
+            'title'	=> $this->notification->getTitle(),
             'body' 	=> array(
-                'plugin' => $this->notification->plugin,
-                'action' => $this->notification->action,
-                'data'   => $this->notification->data
+                'plugin'  => $this->notification->plugin,
+                'action'  => $this->notification->action,
+                'message' => $this->notification->getMessage(),
+                'data'    => $this->notification->getData()
             )
         );
 
@@ -39,7 +40,7 @@ class SPODNOTIFICATION_CLASS_FirebaseSender implements IMobileSender
 
         foreach ($this->targets as $target)
         {
-            $fields['to'] = SPODNOTIFICATION_BOL_Service::getInstance()->getRegistrationIdForUser($target);
+            $fields['to'] = SPODNOTIFICATION_BOL_Service::getInstance()->getRegistrationIdForUser($target->userId);
 
             try
             {
