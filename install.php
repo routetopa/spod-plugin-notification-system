@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `' . OW_DB_PREFIX . 'spod_notification_registered_use
   `type` text,
   `plugin` text,
   `action` text,
+  `parentAction` text,
   `frequency` text,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;

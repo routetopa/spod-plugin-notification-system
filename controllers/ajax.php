@@ -37,7 +37,8 @@ class SPODNOTIFICATION_CTRL_Ajax extends OW_ActionController
                 $clean['plugin'],
                 $clean['type'],
                 $clean['action'],
-                $clean['frequency']);
+                $clean['frequency'],
+                empty($clean['subAction']) ? null : $clean['subAction']);
         }else{
             SPODNOTIFICATION_BOL_Service::getInstance()->deleteUserForNotification(
                 $clean['userId'],
