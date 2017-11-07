@@ -23,6 +23,10 @@ class SPODNOTIFICATION_CLASS_MailEventNotification extends SPODNOTIFICATION_CLAS
         $mail->send();
     }
 
+    public function getBasicMessage(){
+        return $this->getHtmlMail();
+    }
+
     public function getHtmlMail()
     {
         return $this->html_mail;
@@ -36,6 +40,16 @@ class SPODNOTIFICATION_CLASS_MailEventNotification extends SPODNOTIFICATION_CLAS
     public function getSubjectMail()
     {
         return $this->subject_mail;
+    }
+
+    public function setHtmlMail($html_mail)
+    {
+        $this->html_mail = $html_mail;
+    }
+
+    public function setTextMail($text_mail)
+    {
+        $this->text_mail = $text_mail;
     }
 
 

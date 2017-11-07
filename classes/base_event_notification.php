@@ -19,5 +19,6 @@ class SPODNOTIFICATION_CLASS_BaseEventNotification
     {
         SPODNOTIFICATION_BOL_Service::getInstance()->addNotification(serialize($this));
     }
+    public function getBasicMessage(){}
 
 }

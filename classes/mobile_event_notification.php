@@ -23,6 +23,10 @@ class SPODNOTIFICATION_CLASS_MobileEventNotification extends SPODNOTIFICATION_CL
         $firebase->send();
     }
 
+    public function getBasicMessage(){
+        return $this->getMessage();
+    }
+
     public function getTitle()
     {
         return $this->title;
@@ -36,5 +40,10 @@ class SPODNOTIFICATION_CLASS_MobileEventNotification extends SPODNOTIFICATION_CL
     public function getData()
     {
         return $this->data;
+    }
+
+    public function setMessage($message)
+    {
+        $this->message = $message;
     }
 }
