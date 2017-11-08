@@ -1,6 +1,6 @@
 <?php
 
-class SPODNOTIFICATION_CLASS_ElasticMailSender extends OW_ActionController implements SPODNOTIFICATION_CLASS_IMailSender
+class SPODNOTIFICATION_CLASS_ElasticMailSender extends OW_ActionController implements SPODNOTIFICATION_CLASS_ISender
 {
     private static $elastic_api_url = 'https://api.elasticemail.com/v2/email/send';
 

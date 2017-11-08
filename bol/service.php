@@ -99,18 +99,20 @@ class SPODNOTIFICATION_BOL_Service
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->save($notification);
     }
 
-    public function registerUserForNotification($userId, $plugin, $type, $action, $frequency){
+    public function registerUserForNotification($userId, $plugin, $type, $action, $frequency, $parentAction=null)
+    {
         if($this->isUserRegisteredForAction($userId,$plugin,$action) != null){
             SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->updateFrequency($userId,$plugin,$action, $frequency);
             return;
         }
 
-        $reguser             = new SPODNOTIFICATION_BOL_RegisteredUser();
-        $reguser->userId     = $userId;
-        $reguser->plugin     = $plugin;
-        $reguser->type       = $type;
-        $reguser->action     = $action;
-        $reguser->frequency  = $frequency;
+        $reguser               = new SPODNOTIFICATION_BOL_RegisteredUser();
+        $reguser->userId       = $userId;
+        $reguser->plugin       = $plugin;
+        $reguser->type         = $type;
+        $reguser->action       = $action;
+        $reguser->parentAction = $parentAction;
+        $reguser->frequency    = $frequency;
         SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->save($reguser);
     }
 

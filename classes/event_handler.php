@@ -52,87 +52,97 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         foreach ($event->getParams()['notifications'] as $notification)
             $notification->save();
 
-        $this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY, $event->getParams()['notifications']);
+        //$this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY, $event->getParams()['notifications']);
+        $this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY);
     }
 
     public function sendNotificationBatchProcess($frequency, $notifications=null)
     {
-        if($frequency != SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY)
+        $notifications = ($frequency == SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY)
+            ? $notifications
+            : SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotificationsByFrequency($frequency);
+
+        $grouped_notifications = array();
+        foreach($notifications as $notification){
+            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredUsersForNotification($notification->notification, $frequency);
+            if($frequency == SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY)
+               $notification->send($users);
+            else{
+                //For each users save the last notification, by type, related to each plugins
+                foreach ( $users as $user )
+                {
+                    $type = (new ReflectionClass(get_class($notification->notification)))->getStaticPropertyValue("TYPE");
+                    if($type == SPODNOTIFICATION_CLASS_MailEventNotification::$TYPE)
+                       $grouped_notifications[$user->userId][$notification->notification->plugin]['count'] += 1;
+
+                    $grouped_notifications[$user->userId]['user'] = $user;
+                    $message =
+                        "<i>" .
+                        str_replace(
+                            ["#N#", "#PLUGIN#"],
+                            [
+                             "<b>" . $grouped_notifications[$user->userId][$notification->notification->plugin]['count'] . "</b>",
+                             "<b>" . ucwords($notification->notification->plugin) . "</b>"
+                            ],
+                            OW::getLanguage()->text('spodnotification','email_notifications_delayed_news_on_plugin')) .
+                        "</i>" .
+                        "<br>" .
+                        $notification->notification->getBasicMessage();
+
+                    $grouped_notifications[$user->userId][$notification->notification->plugin]['message'][$type] = $message;
+                }
+            }
+        }
+        //send grouped notifications (EVERY_DAY, EVERY_MONTH)
+        foreach ($grouped_notifications as $gnotification)
         {
-            $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotificationsByFrequency($frequency);
+            $mail_message   = $this->getMessageForAllPluginAndNotificationType($gnotification, SPODNOTIFICATION_CLASS_MailEventNotification::$TYPE);
+            if(!empty($mail_message)) {
+                $mail = new SPODNOTIFICATION_CLASS_MailEventNotification(
+                    SPODNOTIFICATION_CLASS_Consts::GLOABL_ACTION_PLUGIN,
+                    SPODNOTIFICATION_CLASS_Consts::GLOBAL_ACTION,
+                    SPODNOTIFICATION_CLASS_Consts::GLOBAL_ACTION,
+                    null,
+                    OW::getLanguage()->text('spodnotification','email_notifications_subject_delayed'),
+                    $mail_message,
+                    ""
+                );
+                $mail->send([$gnotification['user']]);
+            }
+
+            $mobile_message = $this->getMessageForAllPluginAndNotificationType($gnotification, SPODNOTIFICATION_CLASS_MobileEventNotification::$TYPE);
+            if(!empty($mobile_message))
+            {
+                $mobile = new SPODNOTIFICATION_CLASS_MobileEventNotification(
+                    SPODNOTIFICATION_CLASS_Consts::GLOABL_ACTION_PLUGIN,
+                    SPODNOTIFICATION_CLASS_Consts::GLOBAL_ACTION,
+                    SPODNOTIFICATION_CLASS_Consts::GLOBAL_ACTION,
+                    null,
+                    "SPOD",
+                    $mobile_message,
+                    []
+                );
+                $mobile->send([$gnotification['user']]);
+            }
         }
 
-        foreach($notifications as $notification){
-            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredUsersForNotification($notification, $frequency);
-            $notification->send($users);
-        }
     }
 
-    public function sendNotificationBatchProcess__($frequency)
+    private function getMessageForAllPluginAndNotificationType($messages, $notification_type)
     {
-        $notification_ready_to_send        = array();
-        $notification_delayed_messages     = array();
-
-        $notifications = SPODNOTIFICATION_BOL_Service::getInstance()->getAllNotificationsByFrequency($frequency);
-
-        foreach($notifications as $notification){
-
-            $notification->type = json_decode($notification->type);
-            $notification->data = json_decode($notification->data);
-
-            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredUsersForNotification($notification, $frequency);
-
-            foreach($users as $user){
-
-                if($user->userId == $notification->data->owner_id)
-                    continue;
-
-                $user = BOL_UserService::getInstance()->findUserById($user->userId);
-                if ( empty($user) ) continue;
-
-                switch($frequency){
-                    case SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY:
-                        $ready = new stdClass();;
-                        $ready->notification = $notification;
-                        $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
-                        break;
-                    default:
-                        $ready = new stdClass();
-                        $ready->notification = $notification;;
-                        $notification_delayed_messages = $this->fillNotificationStructure($notification_delayed_messages, $user, $ready);
-                        break;
+        $message = "";
+        array_walk_recursive
+            ($messages,
+                function($item, $key) use (&$message, $notification_type)
+                {
+                   if($key == $notification_type)
+                   {
+                       $message .= $item . "<br><br>";
+                   }
                 }
-            }
-        }
+            );
 
-        foreach (array_keys($notification_delayed_messages) as $userId){
-            $notification_content = "";
-            foreach ($notification_delayed_messages[$userId] as $delayed_message) {
-                $notification_content .= $delayed_message->data . "<br><br><br>";
-                array_push($notificationIds, $delayed_message->notificationId);
-            }
-            $user = BOL_UserService::getInstance()->findUserById($userId);
+        return $message;
 
-            $ready = new stdClass();
-            $data = json_decode($ready->notification);
-            $data->message  = $notification_content;
-            $data->subject = OW::getLanguage()->text('spodnotification','email_notifications_subject_delayed');
-            $ready->notification->data = json_encode($data);
-            $notification_ready_to_send = $this->fillNotificationStructure($notification_ready_to_send, $user, $ready);
-        }
-
-        foreach(array_keys($notification_ready_to_send) as $userId){
-            try
-            {
-                foreach ($notification_ready_to_send[$userId][0]->notification->type as $type){
-                    call_user_func(array($this, $this->sendNotificationFunctions[$type]), $userId, $notification_ready_to_send[$userId][0]->notification);
-                }
-            }
-            catch ( Exception $e )
-            {
-                //Skip invalid notification
-                error_log($e->getMessage());
-            }
-        }
     }
 }
