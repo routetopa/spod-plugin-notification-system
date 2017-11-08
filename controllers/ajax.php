@@ -47,7 +47,7 @@ class SPODNOTIFICATION_CTRL_Ajax extends OW_ActionController
                 $clean['action']);
         }
 
-        echo json_encode(array("status" => "ok", "massage" => 'user registered for action '.$clean['action'] . " related to the plugin " . $clean['plugin'] ));
+        echo json_encode(array("status" => "ok", "massage" => 'user registered for action '. $clean['action'] . " related to the plugin " . $clean['plugin'] ));
         exit;
 
     }
