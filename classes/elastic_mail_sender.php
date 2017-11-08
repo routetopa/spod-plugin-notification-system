@@ -64,6 +64,7 @@ class SPODNOTIFICATION_CLASS_ElasticMailSender extends OW_ActionController imple
         $this->setTemplate($template);
 
         $this->assign('userName', BOL_UserService::getInstance()->getDisplayName($userId));
+        $this->assign('avatarUrl', BOL_AvatarService::getInstance()->getAvatarUrl($userId));
         $this->assign('string', $content);
         $this->assign('time', $time);
 
