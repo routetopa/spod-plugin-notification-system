@@ -22,7 +22,7 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
 
         foreach ( $actions as $action )
         {
-            $result = SPODNOTIFICATION_BOL_Service::getInstance()->isUserRegisteredForAction(OW::getUser()->getId(), $action['section'], $action['action']);
+            $result = SPODNOTIFICATION_BOL_Service::getInstance()->isUserRegisteredForAction(OW::getUser()->getId(), $action['section'], $action['action'], SPODNOTIFICATION_CLASS_MailEventNotification::$TYPE);
 
             $action['registered'] = ($result != null) ? true : false;
             $action['frequency']  = ($result != null) ? $result->frequency : '';
