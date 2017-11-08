@@ -52,8 +52,8 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         foreach ($event->getParams()['notifications'] as $notification)
             $notification->save();
 
-        //$this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY, $event->getParams()['notifications']);
-        $this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY);
+        $this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY, $event->getParams()['notifications']);
+        //$this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_EVERYDAY);
     }
 
     public function sendNotificationBatchProcess($frequency, $notifications=null)
@@ -64,16 +64,17 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
 
         $grouped_notifications = array();
         foreach($notifications as $notification){
-            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredUsersForNotification($notification->notification, $frequency);
+            $notification = $frequency == SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY ? $notification : $notification->notification;
+            $users = SPODNOTIFICATION_BOL_Service::getInstance()->getRegisteredUsersForNotification($notification, $frequency);
             if($frequency == SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY)
                $notification->send($users);
             else{
                 //For each users save the last notification, by type, related to each plugins
                 foreach ( $users as $user )
                 {
-                    $type = (new ReflectionClass(get_class($notification->notification)))->getStaticPropertyValue("TYPE");
+                    $type = (new ReflectionClass(get_class($notification)))->getStaticPropertyValue("TYPE");
                     if($type == SPODNOTIFICATION_CLASS_MailEventNotification::$TYPE)
-                       $grouped_notifications[$user->userId][$notification->notification->plugin]['count'] += 1;
+                       $grouped_notifications[$user->userId][$notification->plugin]['count'] += 1;
 
                     $grouped_notifications[$user->userId]['user'] = $user;
                     $message =
@@ -81,15 +82,15 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
                         str_replace(
                             ["#N#", "#PLUGIN#"],
                             [
-                             "<b>" . $grouped_notifications[$user->userId][$notification->notification->plugin]['count'] . "</b>",
-                             "<b>" . ucwords($notification->notification->plugin) . "</b>"
+                             "<b>" . $grouped_notifications[$user->userId][$notification->plugin]['count'] . "</b>",
+                             "<b>" . ucwords($notification->plugin) . "</b>"
                             ],
                             OW::getLanguage()->text('spodnotification','email_notifications_delayed_news_on_plugin')) .
                         "</i>" .
                         "<br>" .
-                        $notification->notification->getBasicMessage();
+                        $notification->getBasicMessage();
 
-                    $grouped_notifications[$user->userId][$notification->notification->plugin]['message'][$type] = $message;
+                    $grouped_notifications[$user->userId][$notification->plugin]['message'][$type] = $message;
                 }
             }
         }
