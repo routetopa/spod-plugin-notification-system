@@ -101,7 +101,7 @@ class SPODNOTIFICATION_BOL_Service
 
     public function registerUserForNotification($userId, $plugin, $type, $action, $frequency, $parentAction=null)
     {
-        if($this->isUserRegisteredForAction($userId,$plugin,$action) != null){
+        if($this->isUserRegisteredForAction($userId,$plugin,$action,$type) != null){
             SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->updateFrequency($userId,$plugin,$action, $frequency);
             return;
         }
@@ -116,11 +116,12 @@ class SPODNOTIFICATION_BOL_Service
         SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->save($reguser);
     }
 
-    public function isUserRegisteredForAction($userId, $plugin, $action){
+    public function isUserRegisteredForAction($userId, $plugin, $action, $type){
         $example = new OW_Example();
         $example->andFieldEqual('userId', $userId);
         $example->andFieldEqual('plugin', $plugin);
         $example->andFieldEqual('action', $action);
+        $example->andFieldEqual('type',   $type);
         $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findObjectByExample($example);
         return $result;
 
