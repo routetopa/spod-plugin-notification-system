@@ -11,10 +11,9 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
         }
 
         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodnotification')->getStaticJsUrl() . 'notification_system.js');
+        OW::getDocument()->addStyleSheet(OW::getPluginManager()->getPlugin('spodnotification')->getStaticCssUrl() . 'notification_settings.css');
 
-        OW::getDocument()->setHeading(OW::getLanguage()->text('spodnotification', 'setup_page_heading'));
-        OW::getDocument()->setHeadingIconClass('ow_ic_mail');
-        OW::getDocument()->setTitle(OW::getLanguage()->text('spodnotification', 'setup_page_title'));
+        OW::getDocument()->getMasterPage()->setTemplate(OW::getPluginManager()->getPlugin('spodnotification')->getRootDir() . 'master_pages/main.html');
 
         $actions = SPODNOTIFICATION_BOL_Service::getInstance()->collectActionList();
 
@@ -35,18 +34,21 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
                 );
             }
 
-            $tplActions[$action['section']]['actions'][$action['action']] = $action;
+            if($action['sectionClass'] == 'action')
+                $tplActions[$action['section']]['actions'][$action['action']] = $action;
+            else
+                $tplActions[$action['section']]['actions'][$action['parentAction']]["subAction"][] = $action;
+        }
 
-            $js = UTIL_JsGenerator::composeJsString('
+        $js = UTIL_JsGenerator::composeJsString('
                 NOTIFICATION                                            = {}
                 NOTIFICATION.userId                                     = {$userId}
                 NOTIFICATION.ajax_notification_register_user_for_action = {$ajax_notification_register_user_for_action}
             ', array(
-                'userId'                                     => OW::getUser()->getId(),
-                'ajax_notification_register_user_for_action' => OW::getRouter()->urlFor('SPODNOTIFICATION_CTRL_Ajax', 'registerUserForAction'),
-            ));
-            OW::getDocument()->addOnloadScript($js);
-        }
+            'userId'                                     => OW::getUser()->getId(),
+            'ajax_notification_register_user_for_action' => OW::getRouter()->urlFor('SPODNOTIFICATION_CTRL_Ajax', 'registerUserForAction'),
+        ));
+        OW::getDocument()->addOnloadScript($js);
 
         $this->assign('actions', $tplActions);
     }

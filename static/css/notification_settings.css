@@ -1,0 +1,255 @@
+.notification_container > *
+{
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.notification_container
+{
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.notification_left
+{
+    height: 100%;
+    width: 70%;
+    overflow-y: auto;
+}
+
+.notification_right
+{
+    height: 100%;
+    width: 30%;
+    background-color: blue;
+}
+
+.notification_section
+{
+    display: flex;
+    flex-direction: row;
+}
+.notification_section:last-child
+{
+    padding-bottom: 32px;
+}
+
+/*.notification_plugin
+{
+    width: 24px;
+    position: relative;
+    writing-mode: vertical-lr;
+    text-align: center;
+    letter-spacing: 4px;
+    line-height: 24px;
+    background-color: #2196f3;
+    color: white;
+    font-weight: 700;
+    margin: 32px 52px 0 52px;
+    box-shadow: inset 2px 0 1px rgba(13, 71, 161, 0.69);
+    border-radius: 4px;
+    transform: rotate(180deg);
+}*/
+
+.notification_plugin
+{
+    width: 24px;
+    position: relative;
+    writing-mode: vertical-lr;
+    text-align: center;
+    letter-spacing: 4px;
+    line-height: 24px;
+    background-color: #2196f3;
+    color: white;
+    font-weight: 700;
+    margin: 32px 52px 0 52px;
+    box-shadow: inset 2px 0 1px rgba(0, 0, 0, .3);
+    border-radius: 4px;
+    transform: rotate(180deg);
+}
+
+.notification_settings
+{
+    display: flex;
+    flex-direction: column;
+    width: calc(100% - 128px);
+}
+
+.notification_setting_container
+{
+    width: 100%;
+    padding-top: 32px;
+}
+
+.notification_setting_panel
+{
+    height: 32px;
+    width: calc(100% - 64px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    border-radius: 4px 4px 0 0;
+    padding: 16px 0;
+    background-color: #fafafa;
+}
+
+.notification_setting_panel.alone
+{
+    border-radius: 4px;
+}
+
+.notification_info_container
+{
+    position: relative;
+    display: flex;
+    flex-direction: row;
+}
+
+.notification_action_text
+{
+    width: calc(50% - 34px);
+    line-height: 36px;
+    overflow: hidden;
+    padding-left: 16px;
+}
+
+.notification_right_arrow
+{
+    background:  url("../images/arrow_right.svg") center no-repeat;
+    background-size: 32px 32px;
+    width: 36px;
+    height: 36px;
+    margin: 0 16px;
+    cursor: pointer;
+}
+
+.notification_setting_subaction_panel
+{
+    height: 12px;
+    width: calc(100% - 64px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    border-radius:0;
+    /*transition: height 1s, background-color .5s;*/
+}
+
+.notification_setting_subaction_panel:last-child
+{
+    border-radius:0 0 4px 4px
+}
+
+.notification_info_subaction_container
+{
+    display: none;
+    padding: 16px 32px 0;
+    flex-direction: row;
+}
+
+.notification_info_subaction_delete
+{
+    background:  url("../images/delete.svg") center no-repeat;
+    background-size: 32px 32px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+}
+
+.notification_stepper
+{
+    width: calc(50% - 34px);
+    position: relative;
+    padding-right: 32px;
+}
+
+.notification_stepper:after
+{
+    content: "";
+    width: 194px;
+    height: 4px;
+    background-color: #2196f3;
+    position: absolute;
+    right: 48px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    top:16px;
+    z-index: 1;
+}
+
+.notification_step
+{
+    background-size: 24px 24px;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    border-radius: 50%;
+    border: 2px solid #2196f3;
+    float: right;
+    z-index: 2;
+    position: relative;
+    margin-left: 32px;
+    cursor: pointer;
+}
+
+.notification_step.selected
+{
+    background-color: #90CAF9 !important;
+}
+
+.notification_step.now
+{
+    background:  url("../images/calendar-check.svg") center no-repeat white;
+}
+
+.notification_step.day
+{
+    background:  url("../images/calendar-day.svg") center no-repeat white;
+}
+
+.notification_step.month
+{
+    background:  url("../images/calendar-month.svg") center no-repeat white;
+}
+
+.notification_step.off
+{
+    background:  url("../images/calendar-off.svg") center no-repeat white;
+}
+
+/* ANIMATIONS */
+
+@keyframes open_subaction {
+    0% {
+        height: 12px;
+        background-color: transparent;
+    }
+    100% {
+        height: 64px;
+        background-color: #ffffff
+    }
+}
+
+@keyframes rotate_90_cw {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(90deg);
+    }
+}
+
+@keyframes close_subaction {
+    0% {
+        height: 64px;
+        background-color: #ffffff
+    }
+    100% {
+        height: 12px;
+        background-color: transparent;
+    }
+}
+
+@keyframes rotate_90_ccw {
+    0% {
+        transform: rotate(90deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}

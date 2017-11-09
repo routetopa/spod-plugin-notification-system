@@ -124,7 +124,18 @@ class SPODNOTIFICATION_BOL_Service
         $example->andFieldEqual('type',   $type);
         $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findObjectByExample($example);
         return $result;
+    }
 
+
+    public static function isUserRegisteredForSubAction($userId, $plugin, $action, $type)
+    {
+        $example = new OW_Example();
+        $example->andFieldEqual('userId', $userId);
+        $example->andFieldEqual('plugin', $plugin);
+        $example->andFieldEqual('parentAction', $action);
+        $example->andFieldEqual('type',   $type);
+        $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findListByExample($example);
+        return $result;
     }
 
     public function deleteRegisteredUser($userId)
