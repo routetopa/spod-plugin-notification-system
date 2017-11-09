@@ -144,6 +144,5 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
             );
 
         return $message;
-
     }
 }
