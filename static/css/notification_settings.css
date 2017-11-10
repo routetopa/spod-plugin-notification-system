@@ -13,16 +13,11 @@
 
 .notification_left
 {
-    height: 100%;
+    height: calc(100% - 32px);
     width: 70%;
-    overflow-y: auto;
-}
-
-.notification_right
-{
-    height: 100%;
-    width: 30%;
-    background-color: blue;
+    position: relative;
+    padding-bottom: 32px;
+    min-width: 860px;
 }
 
 .notification_section
@@ -30,27 +25,6 @@
     display: flex;
     flex-direction: row;
 }
-.notification_section:last-child
-{
-    padding-bottom: 32px;
-}
-
-/*.notification_plugin
-{
-    width: 24px;
-    position: relative;
-    writing-mode: vertical-lr;
-    text-align: center;
-    letter-spacing: 4px;
-    line-height: 24px;
-    background-color: #2196f3;
-    color: white;
-    font-weight: 700;
-    margin: 32px 52px 0 52px;
-    box-shadow: inset 2px 0 1px rgba(13, 71, 161, 0.69);
-    border-radius: 4px;
-    transform: rotate(180deg);
-}*/
 
 .notification_plugin
 {
@@ -150,6 +124,12 @@
     width: 36px;
     height: 36px;
     cursor: pointer;
+    padding-left: 64px;
+}
+
+.notification_subaction_frequency
+{
+    cursor: default !important;
 }
 
 .notification_stepper
@@ -189,7 +169,14 @@
 
 .notification_step.selected
 {
-    background-color: #90CAF9 !important;
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50;
+}
+
+.notification_step.off.selected
+{
+    background-color: #F44336 !important;
+    border-color: #F44336;
 }
 
 .notification_step.now
@@ -212,6 +199,111 @@
     background:  url("../images/calendar-off.svg") center no-repeat white;
 }
 
+/* RIGHT */
+
+.notification_right
+{
+    height: 100%;
+    width: 30%;
+    box-shadow: 0 0 3px rgba(0,0,0,0.12), 0 0 2px rgba(0,0,0,0.24);
+    position: relative;
+}
+
+.right_panel
+{
+    width: calc(100% - 64px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    border-radius: 4px;
+    background-color: #fafafa;
+    margin: 32px auto;
+}
+
+#live_panel
+{
+    position: relative;
+    max-height: 228px;
+}
+
+.right_panel_header
+{
+    width: 100%;
+    border-bottom: 2px solid rgba(0,0,0,0.48);
+    display: flex;
+    flex-direction: row;
+}
+
+.right_panel_icon
+{
+    height: 32px;
+    width: 32px;
+    padding: 0 4px;
+}
+
+.right_panel_icon.agora
+{
+    background:  url("../images/agora.svg") center no-repeat;
+    background-size: 24px 24px;
+}
+
+.right_panel_icon.cocreation
+{
+    background:  url("../images/document.svg") center no-repeat;
+    background-size: 24px 24px;
+}
+
+.right_panel_icon.link
+{
+    background:  url("../images/link.svg") center no-repeat;
+    background-size: 24px 24px;
+}
+
+.right_panel_title
+{
+    height: 32px;
+    line-height: 32px;
+}
+
+.right_panel_content
+{
+    max-height: 228px;
+    position: relative;
+}
+
+.right_panel_content_row
+{
+    border-bottom: 1px solid rgba(0,0,0,0.24);
+    height: 32px;
+    line-height: 32px;
+    padding: 0 12px;
+    overflow: hidden;
+}
+
+.right_panel_live_content_agora a, .right_panel_content_row a
+{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.right_panel_live_content_row
+{
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid rgba(0,0,0,0.24);
+}
+
+.right_panel_live_content_text
+{
+    line-height: 56px;
+    max-width: 60%;
+    font-style: italic;
+}
+
+.right_panel_live_content_agora
+{
+    line-height: 56px;
+    padding-left: 10px;
+}
 /* ANIMATIONS */
 
 @keyframes open_subaction {
