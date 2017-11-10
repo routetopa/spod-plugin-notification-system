@@ -37,9 +37,9 @@ NOTIFICATION_SETTINGS.delete_subaction = function (e)
 {
     let target = $(e.currentTarget);
 
-    $.post(NOTIFICATION.ajax_notification_register_user_for_action,
+    $.post(NOTIFICATION_SETTINGS.ajax_notification_register_user_for_action,
         {
-            userId    : NOTIFICATION.userId,
+            userId    : NOTIFICATION_SETTINGS.userId,
             plugin    : target.parent().attr("data-plugin"),
             action    : target.parent().attr("data-action"),
             type      : "mail",
@@ -74,9 +74,9 @@ NOTIFICATION_SETTINGS.change_step = function (e)
 
     let status = (target.attr("data-value") == 0) ? "false" : "true";
 
-    $.post(NOTIFICATION.ajax_notification_register_user_for_action,
+    $.post(NOTIFICATION_SETTINGS.ajax_notification_register_user_for_action,
         {
-            userId    : NOTIFICATION.userId,
+            userId    : NOTIFICATION_SETTINGS.userId,
             plugin    : target.parent().attr("data-plugin"),
             action    : target.parent().attr("data-action"),
             type      : "mail",
