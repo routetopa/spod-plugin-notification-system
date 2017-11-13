@@ -93,18 +93,22 @@ NOTIFICATION_SETTINGS.show_subaction = function (e)
     let target_sub_container = $(e.currentTarget).parents().eq(3).find(".notification_info_subaction_container");
 
     if(!target[0].open) {
-        target.css("animation", "open_subaction 1s forwards");
         $(e.currentTarget).css("animation", "rotate_90_cw 1s forwards");
         target[0].open = true;
-        target_sub_container.delay(800).queue(function(next){
-          $(this).css("display", "flex");
+
+        target.css("animation", "open_subaction 1s forwards");
+        target_sub_container.css("transition", "opacity 1s ease-in");
+        target_sub_container.delay(200).queue(function(next){
+          $(this).css("opacity", 1);
           next();
         });
     }else{
-        target.css("animation", "close_subaction 1s forwards");
         $(e.currentTarget).css("animation", "rotate_90_ccw 1s forwards");
         target[0].open = false;
-        target_sub_container.hide();
+
+        target_sub_container.css("transition", "opacity 0.2s ease-out");
+        target_sub_container.css("opacity", 0);
+        target.css("animation", "close_subaction 1s forwards");
     }
 };
 

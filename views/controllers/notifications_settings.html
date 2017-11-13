@@ -16,10 +16,10 @@
                         <div class="notification_info_container">
                             <div class="notification_action_text">{$action.description}</div>
                             <div class="notification_stepper" data-plugin="{$action.section}" data-action="{$action.action}" data-frequency-selected="{$action.frequency}">
-                                <div class="notification_step off" data-value="0"></div>
-                                <div class="notification_step month" data-value="3"></div>
-                                <div class="notification_step day" data-value="2"></div>
-                                <div class="notification_step now" data-value="1"></div>
+                                <div class="notification_step tooltips off" data-value="0"><span>Off</span></div>
+                                <div class="notification_step tooltips month" data-value="3"><span>Every month</span></div>
+                                <div class="notification_step tooltips day" data-value="2"><span>Every day</span></div>
+                                <div class="notification_step tooltips now" data-value="1"><span>Everytime</span></div>
                             </div>
                             <div class="notification_right_arrow" {if !isset($action.subAction)} style="visibility:hidden" {/if} ></div>
                         </div>

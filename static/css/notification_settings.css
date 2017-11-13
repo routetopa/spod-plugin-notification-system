@@ -82,8 +82,11 @@
 {
     width: calc(50% - 34px);
     line-height: 36px;
-    overflow: hidden;
     padding-left: 16px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .notification_right_arrow
@@ -112,9 +115,14 @@
 
 .notification_info_subaction_container
 {
-    display: none;
-    padding: 16px 32px 0;
+    display: flex;
     flex-direction: row;
+    padding: 16px 32px 0;
+
+    opacity: 0;
+    /*height: 0;*/
+    transition: opacity 1s ease-in;
+    /*transition: all 1s ease-in;*/
 }
 
 .notification_info_subaction_delete
@@ -275,7 +283,10 @@
     height: 32px;
     line-height: 32px;
     padding: 0 12px;
+
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .right_panel_live_content_agora a, .right_panel_content_row a
@@ -297,6 +308,10 @@
     line-height: 56px;
     max-width: 60%;
     font-style: italic;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .right_panel_live_content_agora
@@ -344,4 +359,43 @@
     100% {
         transform: rotate(0deg);
     }
+}
+
+/* tooltip */
+.notification_step.tooltips {
+    position: relative;
+    display: inline;
+}
+.notification_step.tooltips span {
+    position: absolute;
+    top: -42px;
+    width: 128px;
+    padding: 8px;
+    color: #FFFFFF;
+    background: #000000;
+    height: 16px;
+    line-height: 16px;
+    font-size: 16px;
+    text-align: center;
+    visibility: hidden;
+    border-radius: 4px;
+}
+.notification_step.tooltips span:after {
+    content: '';
+    position: absolute;
+    top: 32px;
+    left: 76px;
+    margin-left: -8px;
+    width: 0; height: 0;
+    border-top: 8px solid #000000;
+    border-right: 8px solid transparent;
+    border-left: 8px solid transparent;
+}
+.notification_step:hover.tooltips span {
+    visibility: visible;
+    opacity: 0.8;
+    bottom: 30px;
+    left: 50%;
+    margin-left: -76px;
+    z-index: 999;
 }
