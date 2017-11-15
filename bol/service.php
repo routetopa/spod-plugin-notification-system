@@ -91,9 +91,9 @@ class SPODNOTIFICATION_BOL_Service
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->deleteByExample($example);
     }
 
-    public function addNotification($obj){
+    public function addNotification(SPODNOTIFICATION_CLASS_BaseEventNotification $obj){
         $notification               = new SPODNOTIFICATION_BOL_Notification();
-        $notification->notification = $obj;
+        $notification->notification = serialize($obj);
         $notification->timestamp    = time();
 
         SPODNOTIFICATION_BOL_NotificationDao::getInstance()->save($notification);
@@ -164,6 +164,7 @@ class SPODNOTIFICATION_BOL_Service
         $sql .= " plugin = '{$notification->plugin}' ";
         $sql .= " AND frequency = '{$frequency}' ";
         $sql .= " AND type = '" . (new ReflectionClass(get_class($notification)))->getStaticPropertyValue("TYPE") . "' ";
+        $sql .= " AND {$b_u_tn}.id != '{$notification->ownerId}' ";
 
         if(!empty($notification->targetUserId)) {
             $sql .= " AND userId = '{$notification->targetUserId}' ";

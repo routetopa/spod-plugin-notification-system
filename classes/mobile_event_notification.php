@@ -8,9 +8,9 @@ class SPODNOTIFICATION_CLASS_MobileEventNotification extends SPODNOTIFICATION_CL
     private $message;
     private $data;
 
-    public function __construct($plugin, $action, $subAction, $targetUserId = null, $title, $message, $data)
+    public function __construct($plugin, $action, $subAction, $ownerId, $targetUserId = null, $title, $message, $data)
     {
-        parent::__construct($plugin, $action, $subAction, $targetUserId);
+        parent::__construct($plugin, $action, $subAction, $ownerId, $targetUserId);
 
         $this->title   = $title;
         $this->message = $message;

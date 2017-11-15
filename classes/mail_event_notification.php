@@ -8,9 +8,9 @@ class SPODNOTIFICATION_CLASS_MailEventNotification extends SPODNOTIFICATION_CLAS
     private $text_mail;
     private $subject_mail;
 
-    public function __construct($plugin, $action, $subAction, $targetUserId = null, $subject_mail, $html_mail, $text_mail)
+    public function __construct($plugin, $action, $subAction, $ownerId, $targetUserId = null, $subject_mail, $html_mail, $text_mail)
     {
-        parent::__construct($plugin, $action, $subAction, $targetUserId);
+        parent::__construct($plugin, $action, $subAction, $ownerId, $targetUserId);
 
         $this->subject_mail = $subject_mail;
         $this->html_mail    = $html_mail;
