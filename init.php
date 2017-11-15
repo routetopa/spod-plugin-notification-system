@@ -6,7 +6,7 @@ OW::getRouter()->addRoute(new OW_Route('spodnotification-user-settings', 'email-
 
 SPODNOTIFICATION_CLASS_EventHandler::getInstance()->init();
 
-function spodnotification_preference_menu_item( BASE_CLASS_EventCollector $event )
+/*function spodnotification_preference_menu_item( BASE_CLASS_EventCollector $event )
 {
     $router = OW_Router::getInstance();
     $language = OW::getLanguage();
@@ -24,7 +24,7 @@ function spodnotification_preference_menu_item( BASE_CLASS_EventCollector $event
     $event->add($menuItem);
 }
 
-OW::getEventManager()->bind('base.preference_menu_items', 'spodnotification_preference_menu_item');
+OW::getEventManager()->bind('base.preference_menu_items', 'spodnotification_preference_menu_item');*/
 
 function spodnotification_add_console_item( BASE_CLASS_EventCollector $event )
 {
