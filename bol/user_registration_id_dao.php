@@ -54,7 +54,7 @@ class SPODNOTIFICATION_BOL_UserRegistrationIdDao extends OW_BaseDao
     {
         $query = 'UPDATE ' . $this->getTableName() . ' SET ' .
             'registrationId=\'' . $registrationid .'\'' .
-            ' WHERE roomId=' . $userId;
+            ' WHERE userId=' . $userId;
 
         return $this->dbo->query($query);
     }
