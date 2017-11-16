@@ -190,23 +190,6 @@ class SPODNOTIFICATION_BOL_Service
         return $result;
     }
 
-    public function collectActionList()
-    {
-        if ( empty($this->defaultRuleList) )
-        {
-            $event = new BASE_CLASS_EventCollector('spodnotification.collect_actions');
-            OW::getEventManager()->trigger($event);
-
-            $eventData = $event->getData();
-            foreach ( $eventData as $item )
-            {
-                $this->defaultRuleList[$item['action']] = $item;
-            }
-        }
-
-        return $this->defaultRuleList;
-    }
-
     public function addUserRegistrationId($userId, $registrationId)
     {
         if($this->getRegistrationIdForUser($userId) != null){
@@ -226,6 +209,5 @@ class SPODNOTIFICATION_BOL_Service
         $result = SPODNOTIFICATION_BOL_UserRegistrationIdDao::getInstance()->findObjectByExample($example);
         return !empty($result) ? $result->registrationId : null;
     }
-
 
 }

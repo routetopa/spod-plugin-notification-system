@@ -24,6 +24,7 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
     public function init()
     {
         OW::getEventManager()->bind('notification_system.add_notification', array($this, 'addNotification'));
+        OW::getEventManager()->bind('notifications.add', array($this, 'addLegacyNotification'));
     }
 
     public function emitNotification($map){
@@ -45,6 +46,35 @@ class SPODNOTIFICATION_CLASS_EventHandler extends OW_ActionController
         else
             $structure[$user->id] = array($notification);
         return $structure;
+    }
+
+    public function addLegacyNotification(OW_Event $event)
+    {
+        $data = $event->getData();
+        $params = $event->getParams();
+
+        $lan = explode('+', $data["string"]['key']);
+        $str = OW::getLanguage()->text($lan[0], $lan[1], $data["string"]["vars"]);
+        $str_mail_html = "<p class='lead'>{$str}</p>";
+        $target_id = $params["userId"];
+        $user_id = $data["avatar"]["userId"];
+        $plugin = $params["pluginKey"];
+        $action = $params["action"];
+
+        $notification = new SPODNOTIFICATION_CLASS_MailEventNotification(
+            $plugin,
+            $action,
+            $action,
+            $user_id,
+            $target_id,
+            strip_tags($str),
+            $str_mail_html,
+            strip_tags($str)
+        );
+
+        $notification->save();
+
+        $this->sendNotificationBatchProcess(SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY, [$notification]);
     }
 
     public function addNotification(OW_Event $event)
