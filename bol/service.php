@@ -185,6 +185,7 @@ class SPODNOTIFICATION_BOL_Service
         $example = new OW_Example();
         $example->andFieldEqual('action', $action);
         $example->andFieldEqual('userId', $userId);
+        $example->andFieldEqual('type', 'mail');
 
         $result = SPODNOTIFICATION_BOL_RegisteredUserDao::getInstance()->findObjectByExample($example);
         return $result;
