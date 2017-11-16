@@ -19,7 +19,7 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
 
         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('spodagora')->getStaticJsUrl() . 'socket_1_7_3.io.js');
 
-        $actions = SPODNOTIFICATION_BOL_Service::getInstance()->collectActionList();
+        $actions = $this->collectActionList();
 
         $tplActions = array();
 
@@ -74,5 +74,32 @@ class SPODNOTIFICATION_CTRL_Notifications extends OW_ActionController
 
         OW::getDocument()->addOnloadScript($js);
         OW::getDocument()->addOnloadScript('NOTIFICATION_SETTINGS.init();');
+    }
+
+    private function collectActionList()
+    {
+        if ( empty($this->defaultRuleList) )
+        {
+            $event = new BASE_CLASS_EventCollector('spodnotification.collect_actions');
+            OW::getEventManager()->trigger($event);
+
+            $eventData = $event->getData();
+            foreach ( $eventData as $item )
+            {
+                $this->defaultRuleList[$item['action']] = $item;
+            }
+
+            $event = new BASE_CLASS_EventCollector('notifications.collect_actions');
+            OW::getEventManager()->trigger($event);
+
+            $eventData = $event->getData();
+            foreach ( $eventData as $item )
+            {
+                $this->defaultRuleList[$item['action']] = $item;
+                $this->defaultRuleList[$item['action']]['sectionClass'] = 'action';
+            }
+        }
+
+        return $this->defaultRuleList;
     }
 }
