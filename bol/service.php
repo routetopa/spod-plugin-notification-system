@@ -106,6 +106,10 @@ class SPODNOTIFICATION_BOL_Service
             return;
         }
 
+        if($parentAction && $this->isUserRegisteredForAction($userId,$plugin,$parentAction,$type) == null){
+            $this->registerUserForNotification($userId, $plugin, $type, $parentAction, SPODNOTIFICATION_CLASS_Consts::FREQUENCY_IMMEDIATELY, null);
+        }
+
         $reguser               = new SPODNOTIFICATION_BOL_RegisteredUser();
         $reguser->userId       = $userId;
         $reguser->plugin       = $plugin;
