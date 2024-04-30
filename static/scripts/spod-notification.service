@@ -1,0 +1,13 @@
+[Unit]
+Description=Spod Notification Service
+
+[Service]
+WorkingDirectory=/var/www/html/spod/ow_plugins/notification_system
+ExecStart=/usr/bin/node /var/www/html/spod/ow_plugins/notification_system/lib/index.js
+ExecReload=/usr/bin/node /var/www/html/spod/ow/var/www/html/spod/ow_plugins/notification_system/lib/index.js
+Type=exec
+Restart=always
+
+[Install]
+WantedBy=default.target
+RequiredBy=network.target
