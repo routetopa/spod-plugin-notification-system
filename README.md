@@ -28,14 +28,14 @@ To install *Notification system* plugin:
     **This script must be run as root**
 
 ### Start the service
-1. Copy the spod-notification-service file into /etc/systemd/system/
+1. Copy the **static/scripts/spod-notification-service** file into **/etc/systemd/system/**
 2. Reboot the system
-3. systemctl daemon-reload
-4. service spod-notification start
+3. **systemctl daemon-reload**
+4. **service spod-notification start**
 
 ### Copy the plugin
 Pay attention to the plugin name:
-1. Rename plugin to notification_system
+1. Rename plugin to **notification_system**
 2. If plugin is already installed, uninstall it and then re-install
-3.  service spod-notification restart
+3.  **service spod-notification restart**
 4.  Check key from the SPOD admin panel
